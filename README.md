@@ -7,54 +7,66 @@ A transparent, state-based, hierarchical router for SwiftUI.
 A fully working router and infinite stack of views. The route state is simply an Int but anything can be used.
 
 ```swift
-struct ContentView: View {
+final class Router: AppRouting {
 
-    var body: some View {
-        NavigationView {
-            RouterContentView(with: Router(route: 0))
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-    }
+init(state: Int, parent: Router? = nil) {
+self.route = Route(state)
+self.parent = parent
 }
 
-final class Router: AppRoutable {
+@Published var route: Route<Int>
+let parent: Router?
 
-    init(route: Int, parent: Router? = nil) {
-        self.state = RouteState(route)
-        self.parent = parent
-    }
+func next(_ inc: Int) {
+state += inc
+}
 
-    @Published var state: RouteState<Int>
-    let parent: Router?
+func makeChildRouter(state: Int) -> Router {
+Router(state: state, parent: self)
+}
 
-    func next(_ inc: Int) {
-        push(route: route + inc)
-    }
+func makeContentView(state: Int) -> some View {
+CounterView(count: state)
+}
+}
 
-    func makeChildRouter(route: Int) -> Router {
-        Router(route: route, parent: self)
-    }
+struct ContentView: View {
 
-    func makeContentView(route: Int) -> some View {
-        CounterView(count: route)
-    }
+var body: some View {
+NavigationView {
+RouterContentView(with: Router(state: 0))
+}
+.navigationViewStyle(StackNavigationViewStyle())
+}
 }
 
 struct CounterView: View {
 
-    var count: Int
+var count: Int
 
-    @EnvironmentObject private var router: Router
+@EnvironmentObject private var router: Router
 
-    var body: some View {
-        VStack(spacing: 20) {
-            Button(action: { router.next(1) }) { Text("Next +1") }
-            Button(action: { router.next(2) }) { Text("Next +2") }
-            Button(action: { router.pop() }) { Text("Back") }
-            Button(action: { router.popToRoot() }) { Text("Top") }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationBarTitle("Count is \(count)")
-    }
+var body: some View {
+VStack(spacing: 20) {
+Button(action: { router.next(1) }) { Text("Next +1") }
+Button(action: { router.next(2) }) { Text("Next +2") }
+Button(action: { router.pop() }) { Text("Back") }
+Button(action: { router.popToRoot() }) { Text("Top") }
+}
+.frame(maxWidth: .infinity, maxHeight: .infinity)
+.buttonStyle(CustomButtonStyle())
+.background(Color.pick(count))
+.navigationBarTitle("Count is \(count)")
+}
+
+struct CustomButtonStyle: ButtonStyle {
+func makeBody(configuration: Configuration) -> some View {
+configuration.label
+.padding(10)
+.foregroundColor(.primary)
+.background(Color(.systemBackground).opacity(configuration.isPressed ? 0.2 : 0.5))
+.cornerRadius(10)
+}
+}
 }
 ```

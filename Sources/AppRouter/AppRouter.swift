@@ -15,7 +15,7 @@ public struct RouterContentView<Router: AppRouting>: View {
     @ObservedObject private var router: Router
 
     public var body: some View {
-        router.makeContentView(route: router.baseRoute)
+        router.makeContentView(state: router.route.base)
             .routing(with: router)
     }
 }
@@ -27,16 +27,16 @@ public extension View {
     }
 }
 
-public struct RouteState<Route> {
+public struct Route<State> {
 
-    public init(_ base: Route) {
+    public init(_ base: State) {
         self.base = base
     }
 
-    let base: Route
-    private(set) var pushed: Route? = nil
+    let base: State
+    private(set) var pushed: State? = nil
 
-    var current: Route {
+    var current: State {
         pushed ?? base
     }
 
@@ -44,8 +44,8 @@ public struct RouteState<Route> {
         pushed != nil
     }
 
-    mutating func push(route: Route) {
-        pushed = route
+    mutating func push(state: State) {
+        pushed = state
     }
 
     mutating func pop() {
@@ -54,45 +54,38 @@ public struct RouteState<Route> {
 }
 
 public protocol AppRouting: ObservableObject {
-    associatedtype Route: CustomStringConvertible
+    associatedtype State: CustomStringConvertible
     associatedtype Content: View
     associatedtype NestedRouter: AppRouting where NestedRouter == Self
-    var state: RouteState<Route> { get set }
+    var route: Route<State> { get set }
     var parent: NestedRouter? { get }
-    func makeContentView(route: Route) -> Content
-    func makeChildRouter(route: Route) -> NestedRouter
+    func makeContentView(state: State) -> Content
+    func makeChildRouter(state: State) -> NestedRouter
 }
 
 public extension AppRouting {
 
-    var baseRoute: Route {
-        state.base
-    }
-
-    var currentRoute: Route {
-        state.current
-    }
-
-    func push(route: Route) {
-        state.push(route: route)
+    var state: State {
+        get { route.current }
+        set { route.push(state: newValue) }
     }
 
     func pop() {
-        parent?.state.pop()
+        parent?.route.pop()
     }
 
     func popToRoot() {
         var root: NestedRouter? = parent
         while root?.parent != nil { root = root?.parent }
-        root?.state.pop()
+        root?.route.pop()
     }
 }
 
 fileprivate extension AppRouting {
 
     var isPushedBinding: Binding<Bool> {
-        Binding(get: { self.state.isPushed },
-                set: { if !$0 { self.state.pop() } })
+        Binding(get: { self.route.isPushed },
+                set: { if !$0 { self.route.pop() } })
     }
 }
 
@@ -115,9 +108,9 @@ struct RoutableView<Router: AppRouting>: View {
     }
 
     var destinationView: AnyView {
-        if let route = router.state.pushed {
-            let child = router.makeChildRouter(route: route)
-            let content = child.makeContentView(route: route)
+        if let state = router.route.pushed {
+            let child = router.makeChildRouter(state: state)
+            let content = child.makeContentView(state: state)
             let view = RoutableView(content: content)
             return AnyView(view.environmentObject(child))
         } else {

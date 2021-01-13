@@ -10,24 +10,24 @@ import AppRouter
 
 final class Router: AppRouting {
 
-    init(route: Int, parent: Router? = nil) {
-        self.state = RouteState(route)
+    init(state: Int, parent: Router? = nil) {
+        self.route = Route(state)
         self.parent = parent
     }
 
-    @Published var state: RouteState<Int>
+    @Published var route: Route<Int>
     let parent: Router?
 
     func next(_ inc: Int) {
-        push(route: baseRoute + inc)
+        state += inc
     }
 
-    func makeChildRouter(route: Int) -> Router {
-        Router(route: route, parent: self)
+    func makeChildRouter(state: Int) -> Router {
+        Router(state: state, parent: self)
     }
 
-    func makeContentView(route: Int) -> some View {
-        CounterView(count: route)
+    func makeContentView(state: Int) -> some View {
+        CounterView(count: state)
     }
 }
 
@@ -35,7 +35,7 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            RouterContentView(with: Router(route: 0))
+            RouterContentView(with: Router(state: 0))
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
