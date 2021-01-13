@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "AppRouter",
+    name: "swift-app-router",
     platforms: [
         .iOS(.v13)
     ],
