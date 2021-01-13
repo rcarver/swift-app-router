@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C49AFE3C25AF7030008175F6 /* DemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49AFE3B25AF7030008175F6 /* DemoApp.swift */; };
+		C49AFE3C25AF7030008175F6 /* LinkDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49AFE3B25AF7030008175F6 /* LinkDemoApp.swift */; };
 		C49AFE3E25AF7030008175F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49AFE3D25AF7030008175F6 /* ContentView.swift */; };
 		C49AFE4025AF7030008175F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C49AFE3F25AF7030008175F6 /* Assets.xcassets */; };
 		C49AFE4325AF7030008175F6 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C49AFE4225AF7030008175F6 /* Preview Assets.xcassets */; };
@@ -15,8 +15,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C49AFE3825AF7030008175F6 /* Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C49AFE3B25AF7030008175F6 /* DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoApp.swift; sourceTree = "<group>"; };
+		C49AFE3825AF7030008175F6 /* LinkDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinkDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C49AFE3B25AF7030008175F6 /* LinkDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkDemoApp.swift; sourceTree = "<group>"; };
 		C49AFE3D25AF7030008175F6 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C49AFE3F25AF7030008175F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C49AFE4225AF7030008175F6 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -38,7 +38,7 @@
 		C49AFE2F25AF7030008175F6 = {
 			isa = PBXGroup;
 			children = (
-				C49AFE3A25AF7030008175F6 /* Demo */,
+				C49AFE3A25AF7030008175F6 /* LinkDemo */,
 				C49AFE3925AF7030008175F6 /* Products */,
 				C49AFE4B25AF70C6008175F6 /* Frameworks */,
 			);
@@ -47,21 +47,21 @@
 		C49AFE3925AF7030008175F6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C49AFE3825AF7030008175F6 /* Demo.app */,
+				C49AFE3825AF7030008175F6 /* LinkDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C49AFE3A25AF7030008175F6 /* Demo */ = {
+		C49AFE3A25AF7030008175F6 /* LinkDemo */ = {
 			isa = PBXGroup;
 			children = (
-				C49AFE3B25AF7030008175F6 /* DemoApp.swift */,
+				C49AFE3B25AF7030008175F6 /* LinkDemoApp.swift */,
 				C49AFE3D25AF7030008175F6 /* ContentView.swift */,
 				C49AFE3F25AF7030008175F6 /* Assets.xcassets */,
 				C49AFE4425AF7030008175F6 /* Info.plist */,
 				C49AFE4125AF7030008175F6 /* Preview Content */,
 			);
-			path = Demo;
+			path = LinkDemo;
 			sourceTree = "<group>";
 		};
 		C49AFE4125AF7030008175F6 /* Preview Content */ = {
@@ -82,9 +82,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C49AFE3725AF7030008175F6 /* Demo */ = {
+		C49AFE3725AF7030008175F6 /* LinkDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C49AFE4725AF7030008175F6 /* Build configuration list for PBXNativeTarget "Demo" */;
+			buildConfigurationList = C49AFE4725AF7030008175F6 /* Build configuration list for PBXNativeTarget "LinkDemo" */;
 			buildPhases = (
 				C49AFE3425AF7030008175F6 /* Sources */,
 				C49AFE3525AF7030008175F6 /* Frameworks */,
@@ -94,12 +94,12 @@
 			);
 			dependencies = (
 			);
-			name = Demo;
+			name = LinkDemo;
 			packageProductDependencies = (
 				C49AFE4C25AF70C6008175F6 /* AppRouter */,
 			);
 			productName = Demo;
-			productReference = C49AFE3825AF7030008175F6 /* Demo.app */;
+			productReference = C49AFE3825AF7030008175F6 /* LinkDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -129,7 +129,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C49AFE3725AF7030008175F6 /* Demo */,
+				C49AFE3725AF7030008175F6 /* LinkDemo */,
 			);
 		};
 /* End PBXProject section */
@@ -152,7 +152,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C49AFE3E25AF7030008175F6 /* ContentView.swift in Sources */,
-				C49AFE3C25AF7030008175F6 /* DemoApp.swift in Sources */,
+				C49AFE3C25AF7030008175F6 /* LinkDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,10 +281,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"Demo/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"LinkDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 6P93C5F6VS;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Demo/Info.plist;
+				INFOPLIST_FILE = LinkDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -303,10 +303,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"Demo/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"LinkDemo/Preview Content\"";
 				DEVELOPMENT_TEAM = 6P93C5F6VS;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Demo/Info.plist;
+				INFOPLIST_FILE = LinkDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -331,7 +331,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C49AFE4725AF7030008175F6 /* Build configuration list for PBXNativeTarget "Demo" */ = {
+		C49AFE4725AF7030008175F6 /* Build configuration list for PBXNativeTarget "LinkDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C49AFE4825AF7030008175F6 /* Debug */,
