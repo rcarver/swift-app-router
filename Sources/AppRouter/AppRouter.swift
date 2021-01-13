@@ -6,6 +6,20 @@
 
 import SwiftUI
 
+public struct RouterContentView<Router: LinkRoutable>: View {
+
+    public init(with router: Router) {
+        self.router = router
+    }
+
+    @ObservedObject private var router: Router
+
+    public var body: some View {
+        router.makeContentView(route: router.route)
+            .routing(with: router)
+    }
+}
+
 public extension View {
 
     func routing<Router: LinkRoutable>(with router: Router) -> some View {

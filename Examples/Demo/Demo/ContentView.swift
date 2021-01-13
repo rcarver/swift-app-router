@@ -27,7 +27,7 @@ final class Router: LinkRoutable {
     }
 
     func makeContentView(route: Int) -> some View {
-        ColorView(color: Color.pick(route))
+        CounterView(count: route)
     }
 }
 
@@ -35,31 +35,39 @@ struct ContentView: View {
 
     var body: some View {
         NavigationView {
-            ColorView(color: .red)
-                .routing(with: Router(route: 0))
+            RouterContentView(with: Router(route: 0))
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
-struct ColorView: View {
+struct CounterView: View {
 
-    var color: Color
+    var count: Int
 
     @EnvironmentObject private var router: Router
 
     var body: some View {
-        VStack {
-            Text(router.route.description)
+        VStack(spacing: 20) {
             Button(action: { router.next(1) }) { Text("Next +1") }
             Button(action: { router.next(2) }) { Text("Next +2") }
             Button(action: { router.pop() }) { Text("Back") }
             Button(action: { router.popToRoot() }) { Text("Top") }
         }
-        .foregroundColor(.white)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(color)
-        .navigationBarTitle("Page \(router.route)")
+        .buttonStyle(CustomButtonStyle())
+        .background(Color.pick(count))
+        .navigationBarTitle("Count is \(count)")
+    }
+
+    struct CustomButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .padding(10)
+                .foregroundColor(.primary)
+                .background(Color(.systemBackground).opacity(configuration.isPressed ? 0.2 : 0.5))
+                .cornerRadius(10)
+        }
     }
 }
 
