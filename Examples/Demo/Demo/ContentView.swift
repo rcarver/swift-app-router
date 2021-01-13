@@ -10,7 +10,7 @@ import AppRouter
 
 final class Router: LinkRoutable {
 
-    required init(route: Int, parent: Router? = nil) {
+    init(route: Int, parent: Router? = nil) {
         self.state = RouteState(route)
         self.parent = parent
     }
