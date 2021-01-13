@@ -6,7 +6,7 @@ A transparent, state-based, hierarchical router for SwiftUI.
 
 A fully working router and infinite stack of views. The route state is simply an Int but anything can be used.
 
-```
+```swift
 struct ContentView: View {
 
     var body: some View {
