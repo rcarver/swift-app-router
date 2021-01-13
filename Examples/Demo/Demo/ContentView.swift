@@ -8,7 +8,7 @@
 import SwiftUI
 import AppRouter
 
-final class Router: LinkRoutable {
+final class Router: AppRouting {
 
     init(route: Int, parent: Router? = nil) {
         self.state = RouteState(route)
@@ -19,7 +19,7 @@ final class Router: LinkRoutable {
     let parent: Router?
 
     func next(_ inc: Int) {
-        push(route: route + inc)
+        push(route: baseRoute + inc)
     }
 
     func makeChildRouter(route: Int) -> Router {

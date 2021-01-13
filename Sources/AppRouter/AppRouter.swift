@@ -6,7 +6,7 @@
 
 import SwiftUI
 
-public struct RouterContentView<Router: LinkRoutable>: View {
+public struct RouterContentView<Router: AppRouting>: View {
 
     public init(with router: Router) {
         self.router = router
@@ -15,14 +15,14 @@ public struct RouterContentView<Router: LinkRoutable>: View {
     @ObservedObject private var router: Router
 
     public var body: some View {
-        router.makeContentView(route: router.route)
+        router.makeContentView(route: router.baseRoute)
             .routing(with: router)
     }
 }
 
 public extension View {
 
-    func routing<Router: LinkRoutable>(with router: Router) -> some View {
+    func routing<Router: AppRouting>(with router: Router) -> some View {
         RoutableView<Router>(content: self).environmentObject(router)
     }
 }
@@ -53,20 +53,24 @@ public struct RouteState<Route> {
     }
 }
 
-public protocol LinkRoutable: ObservableObject {
+public protocol AppRouting: ObservableObject {
     associatedtype Route: CustomStringConvertible
     associatedtype Content: View
-    associatedtype NestedRouter: LinkRoutable where NestedRouter == Self
+    associatedtype NestedRouter: AppRouting where NestedRouter == Self
     var state: RouteState<Route> { get set }
     var parent: NestedRouter? { get }
     func makeContentView(route: Route) -> Content
     func makeChildRouter(route: Route) -> NestedRouter
 }
 
-public extension LinkRoutable {
+public extension AppRouting {
 
-    var route: Route {
+    var baseRoute: Route {
         state.base
+    }
+
+    var currentRoute: Route {
+        state.current
     }
 
     func push(route: Route) {
@@ -84,7 +88,7 @@ public extension LinkRoutable {
     }
 }
 
-fileprivate extension LinkRoutable {
+fileprivate extension AppRouting {
 
     var isPushedBinding: Binding<Bool> {
         Binding(get: { self.state.isPushed },
@@ -92,7 +96,7 @@ fileprivate extension LinkRoutable {
     }
 }
 
-struct RoutableView<Router: LinkRoutable>: View {
+struct RoutableView<Router: AppRouting>: View {
 
     init<Content: View>(content: Content) {
         self.content = AnyView(content)
