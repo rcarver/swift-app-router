@@ -16,6 +16,7 @@
 		C4FE853A25AFBAE400E78C9F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4FE853925AFBAE400E78C9F /* ContentView.swift */; };
 		C4FE853C25AFBAE400E78C9F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4FE853B25AFBAE400E78C9F /* Assets.xcassets */; };
 		C4FE853F25AFBAE400E78C9F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C4FE853E25AFBAE400E78C9F /* Preview Assets.xcassets */; };
+		C4FE854F25AFBD2B00E78C9F /* AppRouter in Frameworks */ = {isa = PBXBuildFile; productRef = C4FE854E25AFBD2B00E78C9F /* AppRouter */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C4FE854F25AFBD2B00E78C9F /* AppRouter in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +156,9 @@
 			dependencies = (
 			);
 			name = TabDemo;
+			packageProductDependencies = (
+				C4FE854E25AFBD2B00E78C9F /* AppRouter */,
+			);
 			productName = TabDemo;
 			productReference = C4FE853525AFBAE400E78C9F /* TabDemo.app */;
 			productType = "com.apple.product-type.application";
@@ -475,6 +480,10 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		C49AFE4C25AF70C6008175F6 /* AppRouter */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppRouter;
+		};
+		C4FE854E25AFBD2B00E78C9F /* AppRouter */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppRouter;
 		};

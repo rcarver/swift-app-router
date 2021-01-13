@@ -12,10 +12,8 @@ import AppRouter
 struct ContentView: View {
 
     var body: some View {
-        NavigationView {
-            RouterContentView(with: Router(state: 0))
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
+        RouterNavigationView(with: Router(state: 0))
+            .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

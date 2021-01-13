@@ -6,6 +6,21 @@
 
 import SwiftUI
 
+public struct RouterNavigationView<Router: AppRouting>: View {
+
+    public init(with router: Router) {
+        self.router = router
+    }
+
+    @ObservedObject private var router: Router
+
+    public var body: some View {
+        NavigationView {
+            RouterContentView(with: router)
+        }
+    }
+}
+
 public struct RouterContentView<Router: AppRouting>: View {
 
     public init(with router: Router) {
@@ -54,13 +69,13 @@ public struct Route<State> {
 }
 
 public protocol AppRouting: ObservableObject {
-    associatedtype State: CustomStringConvertible
+    associatedtype State
     associatedtype Content: View
     associatedtype NestedRouter: AppRouting where NestedRouter == Self
     var route: Route<State> { get set }
     var parent: NestedRouter? { get }
-    func makeContentView(state: State) -> Content
     func makeChildRouter(state: State) -> NestedRouter
+    func makeContentView(state: State) -> Content
 }
 
 public extension AppRouting {
