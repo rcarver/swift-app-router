@@ -49,19 +49,24 @@ public extension AppRouting {
     }
 }
 
+/// The suppored types of presentation.
 public enum PresentationType {
 
     /// Present the state via NavigationLink.
     case link
 
-    /// Present the state via sheet()
+    /// Present the state via sheet().
     case sheet
 
-    /// Present the state via sheet(), embedding the in a NavigationView
+    /// Present the state via sheet(), embedding content in a NavigationView.
     case navigationSheet
 }
 
+/// If your router's State adopts this protocol it can control how
+/// the pushed state is presented.
 public protocol Presentable {
+
+    /// The presentation to use for pushed state.
     var presentation: PresentationType { get }
 }
 
