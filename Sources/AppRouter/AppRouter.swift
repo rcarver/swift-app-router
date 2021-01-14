@@ -6,68 +6,6 @@
 
 import SwiftUI
 
-public struct RouterNavigationView<Router: AppRouting>: View {
-
-    public init(with router: Router) {
-        self.router = router
-    }
-
-    @ObservedObject private var router: Router
-
-    public var body: some View {
-        NavigationView {
-            RouterContentView(with: router)
-        }
-    }
-}
-
-public struct RouterContentView<Router: AppRouting>: View {
-
-    public init(with router: Router) {
-        self.router = router
-    }
-
-    @ObservedObject private var router: Router
-
-    public var body: some View {
-        router.makeContentView(state: router.route.base)
-            .routing(with: router)
-    }
-}
-
-public extension View {
-
-    func routing<Router: AppRouting>(with router: Router) -> some View {
-        RoutableView<Router>(content: self).environmentObject(router)
-    }
-}
-
-public struct Route<State> {
-
-    public init(_ base: State) {
-        self.base = base
-    }
-
-    let base: State
-    private(set) var pushed: State? = nil
-
-    var current: State {
-        pushed ?? base
-    }
-
-    var isPushed: Bool {
-        pushed != nil
-    }
-
-    mutating func push(state: State) {
-        pushed = state
-    }
-
-    mutating func pop() {
-        pushed = nil
-    }
-}
-
 public protocol AppRouting: ObservableObject {
     associatedtype State
     associatedtype Content: View
@@ -82,7 +20,13 @@ public extension AppRouting {
 
     var state: State {
         get { route.current }
-        set { route.push(state: newValue) }
+        set {
+            if let pState = newValue as? Presentable {
+                route.push(state: newValue, presentation: pState.presentation)
+            } else {
+                route.push(state: newValue, presentation: .link)
+            }
+        }
     }
 
     var root: State {
@@ -105,40 +49,69 @@ public extension AppRouting {
     }
 }
 
-fileprivate extension AppRouting {
+public enum PresentationType {
 
-    var isPushedBinding: Binding<Bool> {
-        Binding(get: { self.route.isPushed },
+    /// Present the state via NavigationLink.
+    case link
+
+    /// Present the state via sheet()
+    case sheet
+
+    /// Present the state via sheet(), embedding the in a NavigationView
+    case navigationSheet
+}
+
+public protocol Presentable {
+    var presentation: PresentationType { get }
+}
+
+public struct Route<State> {
+
+    public init(_ base: State) {
+        self.base = base
+    }
+
+    struct PushedState<State> {
+        var state: State
+        var presentation: PresentationType
+    }
+
+    let base: State
+    private(set) var pushed: PushedState<State>? = nil
+
+    var current: State {
+        pushed?.state ?? base
+    }
+
+    mutating func push(state: State, presentation: PresentationType) {
+        pushed = PushedState(state: state, presentation: presentation)
+    }
+
+    mutating func pop() {
+        pushed = nil
+    }
+}
+
+extension AppRouting {
+
+    var isLinkActiveBinding: Binding<Bool> {
+        Binding(get: { self.route.pushed?.presentation == .link },
+                set: { if !$0 { self.route.pop() } })
+    }
+
+    var isSheetPresentedBinding: Binding<Bool> {
+        Binding(get: { self.route.pushed?.presentation.isSheet ?? false },
                 set: { if !$0 { self.route.pop() } })
     }
 }
 
-struct RoutableView<Router: AppRouting>: View {
+extension PresentationType {
 
-    init<Content: View>(content: Content) {
-        self.content = AnyView(content)
-    }
-
-    private var content: AnyView
-    @EnvironmentObject private var router: Router
-
-    var body: some View {
-        VStack(spacing: 0) {
-            NavigationLink(
-                destination: destinationView,
-                isActive: router.isPushedBinding) { EmptyView() }
-            content
-        }
-    }
-
-    var destinationView: AnyView {
-        if let state = router.route.pushed {
-            let child = router.makeChildRouter(state: state)
-            let content = child.makeContentView(state: state)
-            let view = RoutableView(content: content)
-            return AnyView(view.environmentObject(child))
-        } else {
-            return AnyView(EmptyView())
+    var isSheet: Bool {
+        switch self {
+        case .sheet, .navigationSheet: return true
+        case .link: return false
         }
     }
 }
+
