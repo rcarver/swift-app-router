@@ -18,6 +18,9 @@ public protocol AppRouting: ObservableObject {
 
 public extension AppRouting {
 
+    /// Get the current router state.
+    ///
+    /// Setting the state modifies the pushed state.
     var state: State {
         get { route.current }
         set {
@@ -29,16 +32,23 @@ public extension AppRouting {
         }
     }
 
+    /// Get the root router's state.
+    ///
+    /// Setting the root causes the router to pop to root with the value.
     var root: State {
         get { rootRouter.state }
         set { rootRouter.route = Route(newValue) }
     }
 
+    /// Pop one level.
     func pop() {
-        (parent ?? self).route.pop()
+        route.pop()
+        parent?.route.pop()
     }
 
+    /// Pop to root immediately, skipping each intermediate child.
     func popToRoot() {
+        route.pop()
         rootRouter.route.pop()
     }
 

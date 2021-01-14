@@ -61,6 +61,31 @@ class AppRoutingTests: XCTestCase {
         XCTAssertEqual(child.route, Route(1))
     }
 
+    func test_push_route_state_to_children() throws {
+        let parent = TestRouter(state: 0)
+        parent.state = 1
+
+        let child1 = parent.makeChildRouter(state: try XCTUnwrap(parent.route.pushed?.state))
+        child1.state = 2
+
+        let child2 = child1.makeChildRouter(state: try XCTUnwrap(child1.route.pushed?.state))
+        child2.state = 3
+
+        let child3 = child2.makeChildRouter(state: try XCTUnwrap(child2.route.pushed?.state))
+        child3.state = 4 // orphan pushed state
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
+        XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link))
+        XCTAssertEqual(child3.route, Route(base: 3, pushed: 4, presentation: .link))
+
+        child3.pop()
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
+        XCTAssertEqual(child2.route, Route(2), "parent push is dropped")
+        XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
+    }
+
     func test_popToRoot() throws {
         let parent = TestRouter(state: 0)
         parent.state = 1
@@ -72,16 +97,17 @@ class AppRoutingTests: XCTestCase {
         child2.state = 3
 
         let child3 = child2.makeChildRouter(state: try XCTUnwrap(child2.route.pushed?.state))
+        child3.state = 4 // orphan pushed state
 
         XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
         XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
         XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link))
-        XCTAssertEqual(child3.route, Route(3))
+        XCTAssertEqual(child3.route, Route(base: 3, pushed: 4, presentation: .link))
 
         child3.popToRoot()
         XCTAssertEqual(parent.route, Route(0), "parent drops push")
         XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link), "intermediate children are unaffected")
         XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link), "intermediate children are unaffected")
-        XCTAssertEqual(child3.route, Route(3))
+        XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
     }
 }
