@@ -78,10 +78,10 @@ struct MessageView: View {
             Text("\(message) \(count)")
             Button(action: { router.showSheet(messsage: "Sheet") }) { Text("Sheet") }
             Button(action: { router.navigateTo(messsage: "Push") }) { Text("Push") }
+            Divider()
             Button(action: { router.pop() }) { Text("Back") }
-            Button(action: { router.popToRoot() }) { Text("Back to Top") }
-            Button(action: { router.root = Screen(count: count * 10, message: message) }) { Text("Top x10") }
-            RouterDebugView(with: router)
+            Button(action: { router.popToRoot() }) { Text("Back to Top (broken!)") }
+            Button(action: { router.root = Screen(count: count * 10, message: message) }) { Text("Top x10 (broken!)") }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .buttonStyle(CustomButtonStyle())

@@ -22,22 +22,23 @@ public extension AppRouting {
     ///
     /// Setting the state modifies the pushed state.
     var state: State {
-        get { route.current }
+        get {
+            route.current
+        }
         set {
             if let pState = newValue as? Presentable {
-                route.push(state: newValue, presentation: pState.presentation)
+                switch pState.presentation {
+                case .link, .sheet, .navigationSheet:
+                    route.push(state: newValue, presentation: pState.presentation)
+                case .replace:
+                    route = Route(newValue)
+                case .root:
+                    rootRouter.route = Route(newValue)
+                }
             } else {
                 route.push(state: newValue, presentation: .link)
             }
         }
-    }
-
-    /// Get the root router's state.
-    ///
-    /// Setting the root causes the router to pop to root with the value.
-    var root: State {
-        get { rootRouter.state }
-        set { rootRouter.route = Route(newValue) }
     }
 
     /// Pop one level.
@@ -48,16 +49,9 @@ public extension AppRouting {
 
     /// Pop to root immediately, skipping each intermediate child.
     func popToRoot() {
-        let root = rootRouter
         route.pop()
-        root.route.pop()
+        rootRouter.route.pop()
 
-    }
-
-    private var rootRouter: NestedRouter {
-        var root: NestedRouter = self
-        while let p = root.parent { root = p }
-        return root
     }
 }
 
@@ -72,6 +66,12 @@ public enum PresentationType {
 
     /// Present the state via sheet(), embedding content in a NavigationView.
     case navigationSheet
+
+    /// Replace the current base state, instead of pushing a new state.
+    case replace
+
+    /// Replace the root router's base state, popping all children.
+    case root
 }
 
 /// If your router's State adopts this protocol it can control how
@@ -135,6 +135,18 @@ internal extension AppRouting {
     var objectAddress: String {
         String("\(Unmanaged.passUnretained(self).toOpaque())".suffix(6))
     }
+
+    var rootRouter: NestedRouter {
+        var root: NestedRouter = self
+        while let p = root.parent { root = p }
+        return root
+    }
+
+    var routerStack: [NestedRouter] {
+        var stack: [NestedRouter] = [self]
+        while let p = stack.last?.parent { stack.append(p) }
+        return stack
+    }
 }
 
 internal extension PresentationType {
@@ -143,6 +155,8 @@ internal extension PresentationType {
         switch self {
         case .sheet, .navigationSheet: return true
         case .link: return false
+        case .replace: return false
+        case .root: return false
         }
     }
 }

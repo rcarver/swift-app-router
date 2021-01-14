@@ -39,7 +39,15 @@ enum Screen {
     case settings(SettingsState)
 }
 
-extension Screen: CustomStringConvertible {
+extension Screen: CustomStringConvertible, Presentable {
+    var presentation: PresentationType {
+        switch self {
+        case .home: return .root
+        case .explore: return .root
+        case .profile: return .root
+        case .settings: return .link
+        }
+    }
     var description: String {
         switch self {
         case .home: return "home"
@@ -106,18 +114,19 @@ final class Router: AppRouting {
 extension Router {
 
     func switchToHome() {
-        root = .home(HomeState())
+        state = .home(HomeState())
     }
 
     func switchToExplore() {
-        root = .explore(ExploreState())
+        state = .explore(ExploreState())
     }
 
     func switchToProfile() {
-        root = .profile(ProfileState())
+        state = .profile(ProfileState())
     }
 
     func switchToSettings() {
+        // TODO: it would be nice to let Settings define which tab it lives in
         switchToProfile()
         state = .settings(SettingsState())
     }
