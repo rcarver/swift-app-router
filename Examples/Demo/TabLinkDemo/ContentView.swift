@@ -118,6 +118,7 @@ extension Router {
     }
 
     func switchToSettings() {
+        switchToProfile()
         state = .settings(SettingsState())
     }
 
@@ -159,6 +160,9 @@ struct HomeTabView: View {
             }
             Button(action: { router.switchToProfile() }) {
                 Text("Go to Profile")
+            }
+            Button(action: { router.switchToSettings() }) {
+                Text("Settings")
             }
         }
     }
