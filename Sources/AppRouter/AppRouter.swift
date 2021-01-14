@@ -35,7 +35,7 @@ public extension AppRouting {
     }
 
     func pop() {
-        parent?.route.pop()
+        (parent ?? self).route.pop()
     }
 
     func popToRoot() {
@@ -71,13 +71,24 @@ public struct Route<State> {
         self.base = base
     }
 
-    struct PushedState<State> {
+    internal struct PushedState<State> {
         var state: State
         var presentation: PresentationType
     }
 
-    let base: State
-    private(set) var pushed: PushedState<State>? = nil
+    internal let base: State
+    internal private(set) var pushed: PushedState<State>? = nil
+}
+
+extension Route: Equatable where State: Equatable {}
+extension Route.PushedState: Equatable where State: Equatable {}
+
+internal extension Route {
+
+    init(base: State, pushed: State, presentation: PresentationType) {
+        self.base = base
+        self.pushed = PushedState(state: pushed, presentation: presentation)
+    }
 
     var current: State {
         pushed?.state ?? base
@@ -92,7 +103,7 @@ public struct Route<State> {
     }
 }
 
-extension AppRouting {
+internal extension AppRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation == .link },
@@ -105,7 +116,7 @@ extension AppRouting {
     }
 }
 
-extension PresentationType {
+internal extension PresentationType {
 
     var isSheet: Bool {
         switch self {
