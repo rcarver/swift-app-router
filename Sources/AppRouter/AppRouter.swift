@@ -48,8 +48,10 @@ public extension AppRouting {
 
     /// Pop to root immediately, skipping each intermediate child.
     func popToRoot() {
+        let root = rootRouter
         route.pop()
-        rootRouter.route.pop()
+        root.route.pop()
+
     }
 
     private var rootRouter: NestedRouter {
@@ -128,6 +130,10 @@ internal extension AppRouting {
     var isSheetPresentedBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation.isSheet ?? false },
                 set: { if !$0 { self.route.pop() } })
+    }
+
+    var objectAddress: String {
+        String("\(Unmanaged.passUnretained(self).toOpaque())".suffix(6))
     }
 }
 

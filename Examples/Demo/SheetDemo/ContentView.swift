@@ -18,10 +18,14 @@ struct ContentView: View {
 }
 
 // Router state
-struct Screen: Presentable {
+struct Screen: Presentable, CustomDebugStringConvertible {
     var count: Int
     var message: String
     var presentation: PresentationType = .link
+
+    var debugDescription: String {
+        "Screen[\(count)]"
+    }
 }
 
 /// Router implementation
@@ -77,6 +81,7 @@ struct MessageView: View {
             Button(action: { router.pop() }) { Text("Back") }
             Button(action: { router.popToRoot() }) { Text("Back to Top") }
             Button(action: { router.root = Screen(count: count * 10, message: message) }) { Text("Top x10") }
+            RouterDebugView(with: router)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .buttonStyle(CustomButtonStyle())
