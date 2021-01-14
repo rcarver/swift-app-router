@@ -32,7 +32,7 @@ struct ContentView: View {
 }
 
 /// The State type
-enum Tab: String, Hashable {
+enum Tab: Hashable {
     case home
     case explore
     case profile

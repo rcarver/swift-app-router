@@ -58,7 +58,8 @@ struct CounterView: View {
             Button(action: { router.next(1) }) { Text("Next +1") }
             Button(action: { router.next(2) }) { Text("Next +2") }
             Button(action: { router.pop() }) { Text("Back") }
-            Button(action: { router.popToRoot() }) { Text("Top") }
+            Button(action: { router.popToRoot() }) { Text("Back to Top") }
+            Button(action: { router.root = count * 10 }) { Text("Top x10") }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .buttonStyle(CustomButtonStyle())
