@@ -85,14 +85,23 @@ public extension AppRouting {
         set { route.push(state: newValue) }
     }
 
+    var root: State {
+        get { rootRouter.state }
+        set { rootRouter.route = Route(newValue) }
+    }
+
     func pop() {
         parent?.route.pop()
     }
 
     func popToRoot() {
-        var root: NestedRouter? = parent
-        while root?.parent != nil { root = root?.parent }
-        root?.route.pop()
+        rootRouter.route.pop()
+    }
+
+    private var rootRouter: NestedRouter {
+        var root: NestedRouter = self
+        while let p = root.parent { root = p }
+        return root
     }
 }
 
