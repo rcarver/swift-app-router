@@ -192,8 +192,11 @@ struct ExploreTabView: View {
 struct ProfileTabView: View {
     @EnvironmentObject var router: Router
     var body: some View {
-        RouterNavigationView(with: router)
-            .navigationViewStyle(StackNavigationViewStyle())
+        NavigationView {
+            ProfileView()
+                .routeSubviews(with: router)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

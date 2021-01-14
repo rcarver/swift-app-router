@@ -63,6 +63,10 @@ extension Router {
             state = Screen(count: state.count + 1, message: messsage, presentation: .navigationSheet)
         }
     }
+
+    func setRoot(_ multiplier: Int) {
+        state = Screen(count: state.count * multiplier, message: state.message, presentation: .root)
+    }
 }
 
 /// Display the counter screen.
@@ -78,10 +82,12 @@ struct MessageView: View {
             Text("\(message) \(count)")
             Button(action: { router.showSheet(messsage: "Sheet") }) { Text("Sheet") }
             Button(action: { router.navigateTo(messsage: "Push") }) { Text("Push") }
+            Button(action: { router.setRoot(10) }) { Text("Top x10") }
             Divider()
             Button(action: { router.pop() }) { Text("Back") }
-            Button(action: { router.popToRoot() }) { Text("Back to Top (broken!)") }
-            Button(action: { router.root = Screen(count: count * 10, message: message) }) { Text("Top x10 (broken!)") }
+            Button(action: { router.popToRoot() }) { Text("Back to Top") }
+            Divider()
+            Text("Issue: multiple sheets don't dismiss all the way")
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .buttonStyle(CustomButtonStyle())

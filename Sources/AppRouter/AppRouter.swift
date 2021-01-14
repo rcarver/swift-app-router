@@ -49,6 +49,8 @@ public extension AppRouting {
 
     /// Pop to root immediately, skipping each intermediate child.
     func popToRoot() {
+        // FIXME: sheets pop the the first child. It seems like a problem
+        // in the view, perhaps in SwiftUI.
         route.pop()
         rootRouter.route.pop()
 

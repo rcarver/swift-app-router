@@ -7,6 +7,16 @@
 
 import SwiftUI
 
+public extension View {
+
+    /// Wrap the view to handle router state changes.
+    ///
+    /// You'll need to supply your own NavigationView if needed.
+    func routeSubviews<Router: AppRouting>(with router: Router) -> some View {
+        PushedStateView(router: router, content: self)
+    }
+}
+
 /// Presents the base state of the router wrapped in a NavigationView,
 /// passing the router to children through the environment.
 public struct RouterNavigationView<Router: AppRouting>: View {
@@ -19,7 +29,7 @@ public struct RouterNavigationView<Router: AppRouting>: View {
 
     public var body: some View {
         NavigationView {
-            RoutableView(with: router)
+            FullyRoutedView(router: router)
         }
     }
 }
@@ -35,42 +45,54 @@ public struct RouterContentView<Router: AppRouting>: View {
     @ObservedObject private var router: Router
 
     public var body: some View {
-        RoutableView(with: router)
+        FullyRoutedView(router: router)
     }
 }
 
-struct RoutableView<Router: AppRouting>: View {
 
-    public init(with router: Router) {
-        self.router = router
+// MARK: - Internal Views
+
+/// Implements a fully routed view. The view's content is the router's
+/// base state and pushed states are presented as appropriate.
+struct FullyRoutedView<Router: AppRouting>: View {
+
+    @ObservedObject var router: Router
+
+    var body: some View {
+        PushedStateView(router: router, content: contentView)
     }
 
-    @ObservedObject private var router: Router
+    private var contentView: some View {
+        router.makeContentView(state: router.route.base)
+            .environmentObject(router)
+    }
+}
+
+/// Implements presentation of pushed states, wrapping some content.
+struct PushedStateView<Router: AppRouting, Content: View>: View {
+
+    @ObservedObject var router: Router
+    var content: Content
 
     var body: some View {
         VStack(spacing: 0) {
             NavigationLink(
                 destination: presentedView,
                 isActive: router.isLinkActiveBinding) { EmptyView() }
-            contentView
+            content
         }
         .sheet(isPresented: router.isSheetPresentedBinding, content: {
             presentedView
         })
     }
 
-    var contentView: some View {
-        router.makeContentView(state: router.route.base)
-            .environmentObject(router)
-    }
-
-    var presentedView: AnyView {
+    private var presentedView: AnyView {
         guard let pushed = router.route.pushed else {
             return AnyView(EmptyView())
         }
 
         let child = router.makeChildRouter(state: pushed.state)
-        let view = RoutableView(with: child)
+        let view = FullyRoutedView(router: child)
 
         switch pushed.presentation {
         case .navigationSheet:
