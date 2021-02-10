@@ -58,13 +58,27 @@ struct FullyRoutedView<Router: AppRouting>: View {
 
     @ObservedObject var router: Router
 
+    /// This view owns the result of Router.makeContentView. We maintain a reference
+    /// here so that any long-lived objects created along with the view stay alive.
+    @State private var storedView: AnyView?
+
     var body: some View {
         PushedStateView(router: router, content: contentView)
     }
 
-    private var contentView: some View {
-        router.makeContentView(state: router.route.base)
+    private var contentView: AnyView {
+        if let view = storedView {
+            return view
+        }
+
+        let view = router.makeContentView(state: router.route.base)
             .environmentObject(router)
+
+        DispatchQueue.main.async {
+            self.storedView = AnyView(view)
+        }
+
+        return AnyView(view)
     }
 }
 

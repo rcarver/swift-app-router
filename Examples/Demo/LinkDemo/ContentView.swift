@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 import AppRouter
 
 /// The root SwiftUI View
@@ -33,7 +34,7 @@ final class Router: AppRouting {
     }
 
     func makeContentView(state: Int) -> some View {
-        CounterView(count: state)
+        CounterView(model: CounterViewModel(count: state))
     }
 }
 
@@ -46,15 +47,38 @@ extension Router {
     }
 }
 
+class CounterViewModel: ObservableObject {
+
+    init(count: Int) {
+        self.count = count
+
+        Timer.publish(every: 1, on: .main, in: .default)
+            .autoconnect()
+            .scan(0) { count, _ in count + 1 }
+            .map { "Plus \($0)" }
+            .assign(to: &$delayedMessage)
+    }
+
+    deinit {
+        // Ensure that this model is deallocated with its view.
+        print("CounterViewModel.deinit", count)
+    }
+
+    private var cancellables = Set<AnyCancellable>()
+
+    @Published var count: Int
+    @Published var delayedMessage: String = "Start"
+}
+
 /// Display the counter screen.
 struct CounterView: View {
 
-    var count: Int
-
+    @ObservedObject var model: CounterViewModel
     @EnvironmentObject private var router: Router
 
     var body: some View {
         VStack(spacing: 20) {
+            Text(model.delayedMessage)
             Button(action: { router.next(1) }) { Text("Next +1") }
             Button(action: { router.next(2) }) { Text("Next +2") }
             Button(action: { router.pop() }) { Text("Back") }
@@ -62,8 +86,8 @@ struct CounterView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .buttonStyle(CustomButtonStyle())
-        .background(Color.pick(count))
-        .navigationBarTitle("Count is \(count)")
+        .background(Color.pick(model.count))
+        .navigationBarTitle("Count is \(model.count)")
     }
 }
 
