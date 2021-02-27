@@ -27,16 +27,9 @@ public extension AppRouting {
         }
         set {
             if let pState = newValue as? Presentable {
-                switch pState.presentation {
-                case .link, .sheet, .navigationSheet:
-                    route.push(state: newValue, presentation: pState.presentation)
-                case .replace:
-                    route = Route(newValue)
-                case .root:
-                    rootRouter.route = Route(newValue)
-                }
+                pState.presentation.route(self, to: newValue)
             } else {
-                route.push(state: newValue, presentation: .link)
+                PresentationType.link.route(self, to: newValue)
             }
         }
     }
@@ -55,33 +48,6 @@ public extension AppRouting {
         rootRouter.route.pop()
 
     }
-}
-
-/// The suppored types of presentation.
-public enum PresentationType {
-
-    /// Present the state via NavigationLink.
-    case link
-
-    /// Present the state via sheet().
-    case sheet
-
-    /// Present the state via sheet(), embedding content in a NavigationView.
-    case navigationSheet
-
-    /// Replace the current base state, instead of pushing a new state.
-    case replace
-
-    /// Replace the root router's base state, popping all children.
-    case root
-}
-
-/// If your router's State adopts this protocol it can control how
-/// the pushed state is presented.
-public protocol Presentable {
-
-    /// The presentation to use for pushed state.
-    var presentation: PresentationType { get }
 }
 
 public struct Route<State> {
