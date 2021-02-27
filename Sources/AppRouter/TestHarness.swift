@@ -9,7 +9,7 @@ import SwiftUI
 
 enum TestHarness {
 
-    struct State: Presentable, CustomDebugStringConvertible {
+    struct State: Equatable, Presentable, CustomDebugStringConvertible {
         var count: Int
         var presentation: PresentationType = .link
 

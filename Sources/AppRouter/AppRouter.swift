@@ -7,7 +7,7 @@
 import SwiftUI
 
 public protocol AppRouting: ObservableObject {
-    associatedtype State
+    associatedtype State: Equatable
     associatedtype Content: View
     associatedtype NestedRouter: AppRouting where NestedRouter == Self
     var route: Route<State> { get set }
