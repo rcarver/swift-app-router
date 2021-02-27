@@ -18,6 +18,7 @@ public protocol Presentable {
 /// Options for the behvior of presenting via link.
 public struct LinkOptions: Equatable {
 
+    /// Enable autoPop for links.
     static var autoPop: Self { .init(autoPopToPreviousState: true) }
 
     /// If a link would move to the previous state, the router

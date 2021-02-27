@@ -26,6 +26,9 @@ public extension AppRouting {
             route.current
         }
         set {
+            if newValue == route.current {
+                return
+            }
             if let pState = newValue as? Presentable {
                 pState.presentation.route(self, to: newValue)
             } else {
