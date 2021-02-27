@@ -26,13 +26,9 @@ public extension AppRouting {
             route.current
         }
         set {
-            if newValue == route.current {
-                return
-            }
-            if let pState = newValue as? Presentable {
-                pState.presentation.route(self, to: newValue)
-            } else {
-                PresentationType.link.route(self, to: newValue)
+            if newValue != route.current {
+                let presentation = (newValue as? Presentable)?.presentation ?? .default
+                presentation.route(self, to: newValue)
             }
         }
     }
@@ -94,7 +90,7 @@ internal extension Route {
 internal extension AppRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
-        Binding(get: { self.route.pushed?.presentation == .link },
+        Binding(get: { self.route.pushed?.presentation.isLink ?? false },
                 set: { if !$0 { self.route.pop() } })
     }
 
@@ -120,15 +116,19 @@ internal extension AppRouting {
     }
 }
 
-internal extension PresentationType {
+fileprivate extension PresentationType {
+
+    var isLink: Bool {
+        switch self {
+        case .link: return true
+        default: return false
+        }
+    }
 
     var isSheet: Bool {
         switch self {
         case .sheet, .navigationSheet: return true
-        case .link: return false
-        case .replace: return false
-        case .root: return false
+        default: return false
         }
     }
 }
-

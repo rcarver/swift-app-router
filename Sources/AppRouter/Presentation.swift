@@ -19,7 +19,7 @@ public protocol Presentable {
 public struct LinkOptions: Equatable {
 
     /// Enable autoPop for links.
-    static var autoPop: Self { .init(autoPopToPreviousState: true) }
+    public static var autoPop: Self { .init(autoPopToPreviousState: true) }
 
     /// If a link would move to the previous state, the router
     /// automatically pops the current state instead of pushing a new state.
@@ -28,6 +28,9 @@ public struct LinkOptions: Equatable {
 
 /// The supported types of presentation.
 public enum PresentationType: Equatable {
+
+    /// The default presentation.
+    public static var `default`: Self { .link }
 
     /// Present the state via NavigationLink, with default link options.
     public static var link: Self { .link(LinkOptions()) }
