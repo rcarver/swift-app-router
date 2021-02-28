@@ -32,11 +32,13 @@ public extension AppRouting {
     }
 
     /// Transition via presentation, modifying state with closure.
-    func transition(_ presentation: PresentationType, modify: (inout State) -> Void) {
+    func transition<Out>(_ presentation: PresentationType, modify: (inout State) throws -> Out) rethrows -> Out {
         var newState = state
-        modify(&newState)
+        let output = try modify(&newState)
         presentation.route(self, to: newState)
+        return output
     }
+
 
     /// Pop one level.
     func pop() {

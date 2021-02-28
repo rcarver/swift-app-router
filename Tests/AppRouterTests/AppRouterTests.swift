@@ -128,4 +128,34 @@ class AppRoutingTests: XCTestCase {
 
         XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
     }
+
+    func test_transition_closure_return() {
+        let parent = TestRouter(state: 0)
+
+        let result = parent.transition(.sheet) { state -> String in
+            state += 2
+            return "OK"
+        }
+
+        XCTAssertEqual(result, "OK")
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+    }
+
+    func test_transition_closure_throws() {
+        let parent = TestRouter(state: 0)
+
+        struct Err: Error, Equatable {}
+
+        do {
+            try parent.transition(.sheet) { state in
+                state += 2
+                throw Err()
+            }
+            XCTFail("should throw")
+        } catch {
+            XCTAssertEqual(error as? Err, Err())
+        }
+
+        XCTAssertEqual(parent.route, Route(0))
+    }
 }
