@@ -23,11 +23,11 @@ public extension AppRouting {
     /// Setting the state transitions with default presentation.
     var state: State {
         get { route.current }
-        set { transition(newValue, with: .default) }
+        set { transition(newValue, via: .default) }
     }
 
     /// Transition to state with presentation.
-    func transition(_ state: State, with presentation: PresentationType) {
+    func transition(_ state: State, via presentation: PresentationType) {
         presentation.route(self, to: state)
     }
 

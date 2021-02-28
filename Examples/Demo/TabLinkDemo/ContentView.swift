@@ -106,15 +106,15 @@ final class Router: AppRouting {
 extension Router {
 
     func switchToHome() {
-        transition(.home(HomeState()), with: .root)
+        transition(.home(HomeState()), via: .root)
     }
 
     func switchToExplore() {
-        transition(.explore(ExploreState()), with: .root)
+        transition(.explore(ExploreState()), via: .root)
     }
 
     func switchToProfile() {
-        transition(.profile(ProfileState()), with: .root)
+        transition(.profile(ProfileState()), via: .root)
     }
 
     func switchToSettings() {

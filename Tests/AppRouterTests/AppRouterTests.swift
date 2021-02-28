@@ -110,4 +110,22 @@ class AppRoutingTests: XCTestCase {
         XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link), "intermediate children are unaffected")
         XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
     }
+
+    func test_transition() {
+        let parent = TestRouter(state: 0)
+
+        parent.transition(1, via: .sheet)
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .sheet))
+    }
+
+    func test_transition_closure() {
+        let parent = TestRouter(state: 0)
+
+        parent.transition(.sheet) { state in
+            state += 2
+        }
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+    }
 }
