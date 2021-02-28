@@ -159,3 +159,35 @@ class AppRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, Route(0))
     }
 }
+
+class PresentableTests: XCTestCase {
+
+    final class PresentableRouter: AppRouting, Presentable {
+
+        internal init(state: Int, parent: PresentableRouter? = nil) {
+            self.route = Route(state)
+            self.parent = parent
+        }
+
+        var route: Route<Int>
+        var parent: PresentableRouter?
+
+        var defaultPresentation: PresentationType { .sheet }
+
+        func makeChildRouter(state: Int) -> PresentableRouter {
+            PresentableRouter(state: state, parent: self)
+        }
+
+        func makeContentView(state: Int) -> some View {
+            Text("Hello \(state)")
+        }
+    }
+
+    func test_defaultPresentation() {
+        let parent = PresentableRouter(state: 0)
+
+        parent.state = 3
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 3, presentation: .sheet))
+    }
+}

@@ -16,6 +16,13 @@ public protocol AppRouting: ObservableObject {
     func makeContentView(state: State) -> Content
 }
 
+/// Adopt this protocol to change how state transitions are presented by default.
+public protocol Presentable {
+
+    /// Return the default presentation for state transitions.
+    var defaultPresentation: PresentationType { get }
+}
+
 public extension AppRouting {
 
     /// Get the current router state.
@@ -23,7 +30,7 @@ public extension AppRouting {
     /// Setting the state transitions with default presentation.
     var state: State {
         get { route.current }
-        set { transition(newValue, via: .default) }
+        set { transition(newValue, via: defaultPresentation) }
     }
 
     /// Transition to state with presentation.
@@ -120,6 +127,14 @@ internal extension AppRouting {
         var stack: [NestedRouter] = [self]
         while let p = stack.last?.parent { stack.append(p) }
         return stack
+    }
+
+    var defaultPresentation: PresentationType {
+        if let p = self as? Presentable {
+            return p.defaultPresentation
+        } else {
+            return .default
+        }
     }
 }
 
