@@ -32,7 +32,7 @@ struct ContentView: View {
 }
 
 /// The State type
-enum Screen {
+enum Screen: Equatable {
     case home(HomeState)
     case explore(ExploreState)
     case profile(ProfileState)
@@ -59,19 +59,19 @@ extension Screen: CustomStringConvertible, Presentable {
 }
 
 /// Sub-states for each screen
-struct HomeState {
+struct HomeState: Equatable {
     var tab: Tab { .home }
 }
 
-struct ExploreState {
+struct ExploreState: Equatable {
     var tab: Tab { .explore }
 }
 
-struct ProfileState {
+struct ProfileState: Equatable {
     var tab: Tab { .profile }
 }
 
-struct SettingsState {
+struct SettingsState: Equatable {
     var tab: Tab { .profile }
 }
 

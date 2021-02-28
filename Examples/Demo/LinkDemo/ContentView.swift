@@ -13,28 +13,38 @@ import AppRouter
 struct ContentView: View {
 
     var body: some View {
-        RouterNavigationView(with: Router(state: 0))
+        RouterNavigationView(with: Router(state: Screen(count: 0)))
             .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+// Router state
+struct Screen: Equatable, Presentable, CustomDebugStringConvertible {
+    var count: Int
+    var presentation: PresentationType = .link
+
+    var debugDescription: String {
+        "Screen[\(count)]"
     }
 }
 
 /// Router implementation
 final class Router: AppRouting {
 
-    init(state: Int, parent: Router? = nil) {
+    init(state: Screen, parent: Router? = nil) {
         self.route = Route(state)
         self.parent = parent
     }
 
-    @Published var route: Route<Int>
+    @Published var route: Route<Screen>
     let parent: Router?
 
-    func makeChildRouter(state: Int) -> Router {
+    func makeChildRouter(state: Screen) -> Router {
         Router(state: state, parent: self)
     }
 
-    func makeContentView(state: Int) -> some View {
-        CounterView(model: CounterViewModel(count: state))
+    func makeContentView(state: Screen) -> some View {
+        CounterView(model: CounterViewModel(count: state.count))
     }
 }
 
@@ -43,7 +53,12 @@ extension Router {
 
     /// Move to the next screen with a increment.
     func next(_ inc: Int) {
-        state += inc
+        state.count += inc
+    }
+
+    /// Move to the previous screen, popping if appropriate.
+    func previous() {
+        state = Screen(count: state.count - 1, presentation: .link(.autoPop))
     }
 }
 
@@ -81,6 +96,7 @@ struct CounterView: View {
             Text(model.delayedMessage)
             Button(action: { router.next(1) }) { Text("Next +1") }
             Button(action: { router.next(2) }) { Text("Next +2") }
+            Button(action: { router.previous() }) { Text("Previous (AutoPop)") }
             Button(action: { router.pop() }) { Text("Back") }
             Button(action: { router.popToRoot() }) { Text("Back to Top") }
         }
