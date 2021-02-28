@@ -18,7 +18,7 @@ struct ContentView: View {
 }
 
 // Router state
-struct Screen: Presentable, CustomDebugStringConvertible {
+struct Screen: Equatable, Presentable, CustomDebugStringConvertible {
     var count: Int
     var message: String
     var presentation: PresentationType = .link
@@ -60,7 +60,7 @@ extension Router {
         if state.count >= 3 {
             state = Screen(count: state.count + 1, message: messsage, presentation: .sheet)
         } else {
-            state = Screen(count: state.count + 1, message: messsage, presentation: .navigationSheet)
+            state = Screen(count: state.count + 1, message: messsage, presentation: .sheet(.navigable))
         }
     }
 

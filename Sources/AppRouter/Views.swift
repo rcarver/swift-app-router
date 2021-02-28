@@ -109,10 +109,12 @@ struct PushedStateView<Router: AppRouting, Content: View>: View {
         let view = FullyRoutedView(router: child)
 
         switch pushed.presentation {
-        case .navigationSheet:
-            return AnyView(NavigationView { view })
-        case .sheet:
-            return AnyView(view)
+        case .sheet(let options):
+            if options.makeContentNavigable {
+                return AnyView(NavigationView { view })
+            } else {
+                return AnyView(view)
+            }
         case .link:
             return AnyView(view)
         case .replace, .root:

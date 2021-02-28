@@ -96,14 +96,6 @@ extension PresentationTests {
         XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .sheet))
     }
 
-    func test_route_navigationSheet() {
-        let parent = IntRouter(state: 0)
-
-        PresentationType.navigationSheet.route(parent, to: 1)
-
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .navigationSheet))
-    }
-
     func test_route_replace() throws {
         let parent = IntRouter(state: 0)
 

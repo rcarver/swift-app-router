@@ -15,7 +15,7 @@ public protocol Presentable {
     var presentation: PresentationType { get }
 }
 
-/// Options for the behvior of presenting via link.
+/// Options for presenting as link.
 public struct LinkOptions: Equatable {
 
     /// Enable autoPop for links.
@@ -24,6 +24,17 @@ public struct LinkOptions: Equatable {
     /// If a link would move to the previous state, the router
     /// automatically pops the current state instead of pushing a new state.
     var autoPopToPreviousState: Bool = false
+}
+
+/// Options for presenting as sheet.
+public struct SheetOptions: Equatable {
+
+    /// Enable navigation for the content.
+    public static var navigable: Self { .init(makeContentNavigable: true) }
+
+    /// If true, the presented content will be wrapped in a Router-connected
+    /// NavigationView. False presents the content as-is.
+    var makeContentNavigable: Bool = false
 }
 
 /// The supported types of presentation.
@@ -35,14 +46,14 @@ public enum PresentationType: Equatable {
     /// Present the state via NavigationLink, with default link options.
     public static var link: Self { .link(LinkOptions()) }
 
+    /// Present the state via sheet, with default options.
+    public static var sheet: Self { .sheet(SheetOptions()) }
+
     /// Present the state via NavigationLink, with link options.
     case link(LinkOptions)
 
-    /// Present the state via sheet().
-    case sheet
-
-    /// Present the state via sheet(), embedding content in a NavigationView.
-    case navigationSheet
+    /// Present the state via sheet, with sheet options.
+    case sheet(SheetOptions)
 
     /// Replace the current base state, instead of pushing a new state.
     case replace
@@ -56,10 +67,8 @@ extension PresentationType: CustomStringConvertible {
         switch self {
         case .link(_):
             return "link"
-        case .sheet:
+        case .sheet(_):
             return "sheet"
-        case .navigationSheet:
-            return "navigationSheet"
         case .replace:
             return "replace"
         case .root:
@@ -84,7 +93,7 @@ extension PresentationType {
                 router.route.push(state: state, presentation: self)
             }
 
-        case .sheet, .navigationSheet:
+        case .sheet:
             router.route.push(state: state, presentation: self)
 
         case .replace:

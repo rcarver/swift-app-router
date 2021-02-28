@@ -37,7 +37,7 @@ enum TestHarness {
         }
 
         func nextSheet() {
-            state = State(count: state.count + 1, presentation: .navigationSheet)
+            state = State(count: state.count + 1, presentation: .sheet(.navigable))
         }
 
         func nextLink() {

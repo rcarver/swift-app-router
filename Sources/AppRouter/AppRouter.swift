@@ -127,7 +127,7 @@ fileprivate extension PresentationType {
 
     var isSheet: Bool {
         switch self {
-        case .sheet, .navigationSheet: return true
+        case .sheet: return true
         default: return false
         }
     }
