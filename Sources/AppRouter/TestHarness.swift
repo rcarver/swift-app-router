@@ -9,9 +9,8 @@ import SwiftUI
 
 enum TestHarness {
 
-    struct State: Equatable, Presentable, CustomDebugStringConvertible {
+    struct State: Equatable, CustomDebugStringConvertible {
         var count: Int
-        var presentation: PresentationType = .link
 
         var debugDescription: String {
             "State[\(count)]"
@@ -37,19 +36,33 @@ enum TestHarness {
         }
 
         func nextSheet() {
-            state = State(count: state.count + 1, presentation: .sheet(.navigable))
+            transition(.sheet(.navigable)) { state in
+                state.count += 1
+            }
         }
 
         func nextLink() {
-            state = State(count: state.count + 1, presentation: .link)
+            transition(.link) { state in
+                state.count += 1
+            }
+        }
+
+        func previousAutoPop() {
+            transition(.link(.autoPop)) { state in
+                state.count -= 1
+            }
         }
 
         func nextReplace(_ multiplier: Int) {
-            state = State(count: state.count * multiplier, presentation: .replace)
+            transition(.replace) { state in
+                state.count *= multiplier
+            }
         }
 
         func nextRoot(_ inc: Int) {
-            state = State(count: state.count + inc, presentation: .root)
+            transition(.root) { state in
+                state.count += inc
+            }
         }
     }
 
@@ -59,6 +72,7 @@ enum TestHarness {
         var body: some View {
             VStack {
                 Button(action: { router.nextLink() }) { Text("Link") }
+                Button(action: { router.previousAutoPop() }) { Text("AutoPop") }
                 Button(action: { router.nextSheet() }) { Text("Sheet") }
                 Button(action: { router.nextReplace(10) }) { Text("Replace x10") }
                 Button(action: { router.nextRoot(5) }) { Text("Root +5") }

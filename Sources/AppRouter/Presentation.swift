@@ -7,14 +7,6 @@
 
 import Foundation
 
-/// If your router's State adopts this protocol it can control how
-/// the pushed state is presented.
-public protocol Presentable {
-
-    /// The presentation to use for pushed state.
-    var presentation: PresentationType { get }
-}
-
 /// Options for presenting as link.
 public struct LinkOptions: Equatable {
 
@@ -83,6 +75,9 @@ extension PresentationType {
         switch self {
 
         case .link(let options):
+            if state == router.route.current {
+                return
+            }
             if options.autoPopToPreviousState {
                 if let previous = router.parent?.route.base, previous == state {
                     router.pop()
@@ -94,6 +89,9 @@ extension PresentationType {
             }
 
         case .sheet:
+            if state == router.route.current {
+                return
+            }
             router.route.push(state: state, presentation: self)
 
         case .replace:

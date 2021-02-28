@@ -20,17 +20,22 @@ public extension AppRouting {
 
     /// Get the current router state.
     ///
-    /// Setting the state modifies the pushed state.
+    /// Setting the state transitions with default presentation.
     var state: State {
-        get {
-            route.current
-        }
-        set {
-            if newValue != route.current {
-                let presentation = (newValue as? Presentable)?.presentation ?? .default
-                presentation.route(self, to: newValue)
-            }
-        }
+        get { route.current }
+        set { transition(newValue, with: .default) }
+    }
+
+    /// Transition to state with presentation.
+    func transition(_ state: State, with presentation: PresentationType) {
+        presentation.route(self, to: state)
+    }
+
+    /// Transition via presentation, modifying state with closure.
+    func transition(_ presentation: PresentationType, modify: (inout State) -> Void) {
+        var newState = state
+        modify(&newState)
+        presentation.route(self, to: newState)
     }
 
     /// Pop one level.

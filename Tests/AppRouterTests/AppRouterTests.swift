@@ -47,12 +47,6 @@ class AppRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, Route(0), "parent drops push")
     }
 
-    func test_push_route_duplicate_state() {
-        let parent = TestRouter(state: 0)
-        parent.state = 0
-        XCTAssertEqual(parent.route, Route(0))
-    }
-
     func test_push_route_state_to_child() throws {
         let parent = TestRouter(state: 0)
         parent.state = 1

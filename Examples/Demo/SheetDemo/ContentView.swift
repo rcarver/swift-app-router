@@ -18,10 +18,9 @@ struct ContentView: View {
 }
 
 // Router state
-struct Screen: Equatable, Presentable, CustomDebugStringConvertible {
+struct Screen: Equatable, CustomDebugStringConvertible {
     var count: Int
     var message: String
-    var presentation: PresentationType = .link
 
     var debugDescription: String {
         "Screen[\(count)]"
@@ -53,19 +52,30 @@ final class Router: AppRouting {
 extension Router {
 
     func navigateTo(messsage: String) {
-        state = Screen(count: state.count + 1, message: messsage, presentation: .link)
+        transition(.link) { state in
+            state.count += 1
+            state.message = messsage
+        }
     }
 
     func showSheet(messsage: String) {
         if state.count >= 3 {
-            state = Screen(count: state.count + 1, message: messsage, presentation: .sheet)
+            transition(.sheet) { state in
+                state.count += 1
+                state.message = messsage
+            }
         } else {
-            state = Screen(count: state.count + 1, message: messsage, presentation: .sheet(.navigable))
+            transition(.sheet(.navigable)) { state in
+                state.count += 1
+                state.message = messsage
+            }
         }
     }
 
     func setRoot(_ multiplier: Int) {
-        state = Screen(count: state.count * multiplier, message: state.message, presentation: .root)
+        transition(.root) { state in
+            state.count *= multiplier
+        }
     }
 }
 

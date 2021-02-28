@@ -39,15 +39,7 @@ enum Screen: Equatable {
     case settings(SettingsState)
 }
 
-extension Screen: CustomStringConvertible, Presentable {
-    var presentation: PresentationType {
-        switch self {
-        case .home: return .root
-        case .explore: return .root
-        case .profile: return .root
-        case .settings: return .link
-        }
-    }
+extension Screen: CustomStringConvertible {
     var description: String {
         switch self {
         case .home: return "home"
@@ -114,15 +106,15 @@ final class Router: AppRouting {
 extension Router {
 
     func switchToHome() {
-        state = .home(HomeState())
+        transition(.home(HomeState()), with: .root)
     }
 
     func switchToExplore() {
-        state = .explore(ExploreState())
+        transition(.explore(ExploreState()), with: .root)
     }
 
     func switchToProfile() {
-        state = .profile(ProfileState())
+        transition(.profile(ProfileState()), with: .root)
     }
 
     func switchToSettings() {

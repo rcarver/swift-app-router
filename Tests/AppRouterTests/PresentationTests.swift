@@ -11,42 +11,18 @@ import SwiftUI
 
 class PresentationTests: XCTestCase {
 
-    struct State: Equatable, Presentable {
-        var count: Int
-        var presentation: PresentationType = .link
-    }
-
     final class TestRouter: AppRouting {
 
-        internal init(state: State, parent: TestRouter? = nil) {
-            self.route = Route(state)
-            self.parent = parent
-        }
-
-        var route: Route<State>
-        var parent: TestRouter?
-
-        func makeChildRouter(state: State) -> TestRouter {
-            TestRouter(state: state, parent: self)
-        }
-
-        func makeContentView(state: State) -> some View {
-            Text("Hello \(state.count)")
-        }
-    }
-
-    final class IntRouter: AppRouting {
-
-        internal init(state: Int, parent: IntRouter? = nil) {
+        internal init(state: Int, parent: TestRouter? = nil) {
             self.route = Route(state)
             self.parent = parent
         }
 
         var route: Route<Int>
-        var parent: IntRouter?
+        var parent: TestRouter?
 
-        func makeChildRouter(state: Int) -> IntRouter {
-            IntRouter(state: state, parent: self)
+        func makeChildRouter(state: Int) -> TestRouter {
+            TestRouter(state: state, parent: self)
         }
 
         func makeContentView(state: Int) -> some View {
@@ -58,15 +34,23 @@ class PresentationTests: XCTestCase {
 extension PresentationTests {
 
     func test_route_link() {
-        let parent = IntRouter(state: 0)
+        let parent = TestRouter(state: 0)
 
         PresentationType.link.route(parent, to: 1)
 
         XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
     }
 
+    func test_route_link_same_state() {
+        let parent = TestRouter(state: 0)
+
+        PresentationType.link.route(parent, to: 0)
+
+        XCTAssertEqual(parent.route, Route(0))
+    }
+
     func test_route_link_autoPop() throws {
-        let parent = IntRouter(state: 0)
+        let parent = TestRouter(state: 0)
 
         PresentationType.link.route(parent, to: 1)
         let child1 = parent.makeChildRouter(state: try XCTUnwrap(parent.route.pushed?.state))
@@ -89,15 +73,23 @@ extension PresentationTests {
     }
 
     func test_route_sheet() {
-        let parent = IntRouter(state: 0)
+        let parent = TestRouter(state: 0)
 
         PresentationType.sheet.route(parent, to: 1)
 
         XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .sheet))
     }
 
+    func test_route_sheet_same_state() {
+        let parent = TestRouter(state: 0)
+
+        PresentationType.sheet.route(parent, to: 0)
+
+        XCTAssertEqual(parent.route, Route(0))
+    }
+
     func test_route_replace() throws {
-        let parent = IntRouter(state: 0)
+        let parent = TestRouter(state: 0)
 
         PresentationType.link.route(parent, to: 1)
 
@@ -113,7 +105,7 @@ extension PresentationTests {
     }
 
     func test_route_root() throws {
-        let parent = IntRouter(state: 0)
+        let parent = TestRouter(state: 0)
 
         PresentationType.link.route(parent, to: 1)
 
