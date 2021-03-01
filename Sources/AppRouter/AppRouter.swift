@@ -7,7 +7,7 @@
 import SwiftUI
 
 public protocol AppRouting: ObservableObject {
-    associatedtype State
+    associatedtype State: Equatable
     associatedtype Content: View
     associatedtype NestedRouter: AppRouting where NestedRouter == Self
     var route: Route<State> { get set }
@@ -16,30 +16,36 @@ public protocol AppRouting: ObservableObject {
     func makeContentView(state: State) -> Content
 }
 
+/// Adopt this protocol to change how state transitions are presented by default.
+public protocol Presentable {
+
+    /// Return the default presentation for state transitions.
+    var defaultPresentation: PresentationType { get }
+}
+
 public extension AppRouting {
 
     /// Get the current router state.
     ///
-    /// Setting the state modifies the pushed state.
+    /// Setting the state transitions with default presentation.
     var state: State {
-        get {
-            route.current
-        }
-        set {
-            if let pState = newValue as? Presentable {
-                switch pState.presentation {
-                case .link, .sheet, .navigationSheet:
-                    route.push(state: newValue, presentation: pState.presentation)
-                case .replace:
-                    route = Route(newValue)
-                case .root:
-                    rootRouter.route = Route(newValue)
-                }
-            } else {
-                route.push(state: newValue, presentation: .link)
-            }
-        }
+        get { route.current }
+        set { transition(newValue, via: defaultPresentation) }
     }
+
+    /// Transition to state with presentation.
+    func transition(_ state: State, via presentation: PresentationType) {
+        presentation.route(self, to: state)
+    }
+
+    /// Transition via presentation, modifying state with closure.
+    func transition<Out>(_ presentation: PresentationType, modify: (inout State) throws -> Out) rethrows -> Out {
+        var newState = state
+        let output = try modify(&newState)
+        presentation.route(self, to: newState)
+        return output
+    }
+
 
     /// Pop one level.
     func pop() {
@@ -55,33 +61,6 @@ public extension AppRouting {
         rootRouter.route.pop()
 
     }
-}
-
-/// The suppored types of presentation.
-public enum PresentationType {
-
-    /// Present the state via NavigationLink.
-    case link
-
-    /// Present the state via sheet().
-    case sheet
-
-    /// Present the state via sheet(), embedding content in a NavigationView.
-    case navigationSheet
-
-    /// Replace the current base state, instead of pushing a new state.
-    case replace
-
-    /// Replace the root router's base state, popping all children.
-    case root
-}
-
-/// If your router's State adopts this protocol it can control how
-/// the pushed state is presented.
-public protocol Presentable {
-
-    /// The presentation to use for pushed state.
-    var presentation: PresentationType { get }
 }
 
 public struct Route<State> {
@@ -125,7 +104,7 @@ internal extension Route {
 internal extension AppRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
-        Binding(get: { self.route.pushed?.presentation == .link },
+        Binding(get: { self.route.pushed?.presentation.isLink ?? false },
                 set: { if !$0 { self.route.pop() } })
     }
 
@@ -149,17 +128,29 @@ internal extension AppRouting {
         while let p = stack.last?.parent { stack.append(p) }
         return stack
     }
-}
 
-internal extension PresentationType {
-
-    var isSheet: Bool {
-        switch self {
-        case .sheet, .navigationSheet: return true
-        case .link: return false
-        case .replace: return false
-        case .root: return false
+    var defaultPresentation: PresentationType {
+        if let p = self as? Presentable {
+            return p.defaultPresentation
+        } else {
+            return .default
         }
     }
 }
 
+fileprivate extension PresentationType {
+
+    var isLink: Bool {
+        switch self {
+        case .link: return true
+        default: return false
+        }
+    }
+
+    var isSheet: Bool {
+        switch self {
+        case .sheet: return true
+        default: return false
+        }
+    }
+}

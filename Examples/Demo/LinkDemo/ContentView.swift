@@ -45,6 +45,13 @@ extension Router {
     func next(_ inc: Int) {
         state += inc
     }
+
+    /// Move to the previous screen, popping if appropriate.
+    func previous() {
+        transition(.link(.autoPop)) { state in
+            state -= 1
+        }
+    }
 }
 
 class CounterViewModel: ObservableObject {
@@ -81,6 +88,8 @@ struct CounterView: View {
             Text(model.delayedMessage)
             Button(action: { router.next(1) }) { Text("Next +1") }
             Button(action: { router.next(2) }) { Text("Next +2") }
+            Button(action: { router.next(0) }) { Text("Next 0 (No Change)") }
+            Button(action: { router.previous() }) { Text("Previous (AutoPop)") }
             Button(action: { router.pop() }) { Text("Back") }
             Button(action: { router.popToRoot() }) { Text("Back to Top") }
         }

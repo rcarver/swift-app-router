@@ -110,4 +110,84 @@ class AppRoutingTests: XCTestCase {
         XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link), "intermediate children are unaffected")
         XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
     }
+
+    func test_transition() {
+        let parent = TestRouter(state: 0)
+
+        parent.transition(1, via: .sheet)
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .sheet))
+    }
+
+    func test_transition_closure() {
+        let parent = TestRouter(state: 0)
+
+        parent.transition(.sheet) { state in
+            state += 2
+        }
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+    }
+
+    func test_transition_closure_return() {
+        let parent = TestRouter(state: 0)
+
+        let result = parent.transition(.sheet) { state -> String in
+            state += 2
+            return "OK"
+        }
+
+        XCTAssertEqual(result, "OK")
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+    }
+
+    func test_transition_closure_throws() {
+        let parent = TestRouter(state: 0)
+
+        struct Err: Error, Equatable {}
+
+        do {
+            try parent.transition(.sheet) { state in
+                state += 2
+                throw Err()
+            }
+            XCTFail("should throw")
+        } catch {
+            XCTAssertEqual(error as? Err, Err())
+        }
+
+        XCTAssertEqual(parent.route, Route(0))
+    }
+}
+
+class PresentableTests: XCTestCase {
+
+    final class PresentableRouter: AppRouting, Presentable {
+
+        internal init(state: Int, parent: PresentableRouter? = nil) {
+            self.route = Route(state)
+            self.parent = parent
+        }
+
+        var route: Route<Int>
+        var parent: PresentableRouter?
+
+        var defaultPresentation: PresentationType { .sheet }
+
+        func makeChildRouter(state: Int) -> PresentableRouter {
+            PresentableRouter(state: state, parent: self)
+        }
+
+        func makeContentView(state: Int) -> some View {
+            Text("Hello \(state)")
+        }
+    }
+
+    func test_defaultPresentation() {
+        let parent = PresentableRouter(state: 0)
+
+        parent.state = 3
+
+        XCTAssertEqual(parent.route, Route(base: 0, pushed: 3, presentation: .sheet))
+    }
 }
