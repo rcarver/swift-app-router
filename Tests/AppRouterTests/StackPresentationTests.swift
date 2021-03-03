@@ -11,7 +11,7 @@ import SwiftUI
 
 class PresentationTests: XCTestCase {
 
-    final class TestRouter: AppRouting {
+    final class TestRouter: StackRouting {
 
         internal init(state: Int, parent: TestRouter? = nil) {
             self.route = Route(state)

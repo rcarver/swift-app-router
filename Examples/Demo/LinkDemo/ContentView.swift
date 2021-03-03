@@ -19,7 +19,7 @@ struct ContentView: View {
 }
 
 /// Router implementation
-final class Router: AppRouting {
+final class Router: StackRouting {
 
     init(state: Int, parent: Router? = nil) {
         self.route = Route(state)

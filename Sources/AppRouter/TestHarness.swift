@@ -17,7 +17,7 @@ enum TestHarness {
         }
     }
 
-    final class Router: AppRouting {
+    final class Router: StackRouting {
 
         internal init(state: State, parent: Router? = nil) {
             self.route = Route(state)

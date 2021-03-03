@@ -10,7 +10,7 @@ import SwiftUI
 
 public protocol TabRouting: ObservableObject {
 
-    associatedtype StackRouter: AppRouting
+    associatedtype StackRouter: StackRouting
     associatedtype Tab: Hashable, CaseIterable
     associatedtype TabContent: View
     associatedtype TabBarContent: View
@@ -22,28 +22,7 @@ public protocol TabRouting: ObservableObject {
     func makeTabItemView(tab: Tab) -> TabContent
 }
 
-public struct TabRoute<Tab: Hashable> {
-
-    public init(tab: Tab) {
-        self.tab = tab
-        self.behavior = .keepState
-    }
-
-    init(tab: Tab, behavior: TabBehavior) {
-        self.tab = tab
-        self.behavior = behavior
-    }
-
-    internal let tab: Tab
-    internal let behavior: TabBehavior
-}
-
-public enum TabBehavior {
-    case keepState
-    case popToRoot
-    case popToRootIfRepeated
-}
-
+/// Adopt this protocol to change how tab transitions behave by default.
 public protocol TabBehaving {
     var defaultBehavior: TabBehavior { get }
 }
@@ -75,6 +54,22 @@ public extension TabRouting {
             }
         }
     }
+}
+
+public struct TabRoute<Tab> {
+
+    public init(tab: Tab) {
+        self.tab = tab
+        self.behavior = .keepState
+    }
+
+    init(tab: Tab, behavior: TabBehavior) {
+        self.tab = tab
+        self.behavior = behavior
+    }
+
+    internal let tab: Tab
+    internal let behavior: TabBehavior
 }
 
 internal extension TabRouting {

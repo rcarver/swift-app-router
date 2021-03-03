@@ -86,7 +86,7 @@ extension TabRouter {
 }
 
 /// Stack Router implementation
-final class NavRouter: AppRouting {
+final class NavRouter: StackRouting {
 
     internal init(state: Int, parent: NavRouter? = nil) {
         self.route = Route(state)

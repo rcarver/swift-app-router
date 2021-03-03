@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct RouterDebugView<Router: AppRouting>: View {
+public struct RouterDebugView<Router: StackRouting>: View {
 
     public init(with router: Router) {
         self.router = router

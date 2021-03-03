@@ -71,7 +71,7 @@ extension PresentationType: CustomStringConvertible {
 
 extension PresentationType {
 
-    func route<Router: AppRouting>(_ router: Router, to state: Router.State) {
+    func route<Router: StackRouting>(_ router: Router, to state: Router.State) {
         switch self {
 
         case .link(let options):

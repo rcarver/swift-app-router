@@ -75,7 +75,7 @@ enum Tab: Hashable {
 }
 
 /// Router implementation
-final class Router: AppRouting {
+final class Router: StackRouting {
 
     internal init(screen: Screen, parent: Router? = nil) {
         self.route = Route(screen)

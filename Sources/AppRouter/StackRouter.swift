@@ -6,10 +6,10 @@
 
 import SwiftUI
 
-public protocol AppRouting: ObservableObject {
+public protocol StackRouting: ObservableObject {
     associatedtype State: Equatable
     associatedtype Content: View
-    associatedtype NestedRouter: AppRouting where NestedRouter == Self
+    associatedtype NestedRouter: StackRouting where NestedRouter == Self
     var route: Route<State> { get set }
     var parent: NestedRouter? { get }
     func makeChildRouter(state: State) -> NestedRouter
@@ -23,7 +23,7 @@ public protocol Presentable {
     var defaultPresentation: PresentationType { get }
 }
 
-public extension AppRouting {
+public extension StackRouting {
 
     /// Get the current router state.
     ///
@@ -101,7 +101,7 @@ internal extension Route {
     }
 }
 
-internal extension AppRouting {
+internal extension StackRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation.isLink ?? false },

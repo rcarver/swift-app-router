@@ -9,9 +9,9 @@ import XCTest
 import SwiftUI
 @testable import AppRouter
 
-class AppRoutingTests: XCTestCase {
+class StackRoutingTests: XCTestCase {
 
-    final class TestRouter: AppRouting {
+    final class TestRouter: StackRouting {
 
         internal init(state: Int, parent: TestRouter? = nil) {
             self.route = Route(state)
@@ -162,7 +162,7 @@ class AppRoutingTests: XCTestCase {
 
 class PresentableTests: XCTestCase {
 
-    final class PresentableRouter: AppRouting, Presentable {
+    final class PresentableRouter: StackRouting, Presentable {
 
         internal init(state: Int, parent: PresentableRouter? = nil) {
             self.route = Route(state)
