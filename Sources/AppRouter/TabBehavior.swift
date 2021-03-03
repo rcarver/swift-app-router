@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// The ways that chaging tabs can behave.
+/// The ways that changing tabs can behave.
 public enum TabBehavior {
 
     /// Keep the current state of the stack navigation in the tab.
@@ -18,4 +18,14 @@ public enum TabBehavior {
 
     /// Pop the stack navigation to root if the current tab is selected again.
     case popToRootIfRepeated
+}
+
+extension TabBehavior: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .keepState: return "keepState"
+        case .popToRoot: return "popToRoot"
+        case .popToRootIfRepeated: return "popToRootIfRepeated"
+        }
+    }
 }

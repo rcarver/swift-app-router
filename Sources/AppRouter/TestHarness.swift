@@ -20,11 +20,11 @@ enum TestHarness {
     final class Router: StackRouting {
 
         internal init(state: State, parent: Router? = nil) {
-            self.route = Route(state)
+            self.route = StackRoute(state)
             self.parent = parent
         }
 
-        @Published var route: Route<State>
+        @Published var route: StackRoute<State>
         var parent: Router?
 
         func makeChildRouter(state: State) -> Router {

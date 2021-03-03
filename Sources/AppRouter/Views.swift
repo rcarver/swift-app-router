@@ -59,7 +59,7 @@ public struct RouterTabView<Router: TabRouting>: View {
     @ObservedObject private var router: Router
 
     public var body: some View {
-        TabView(selection: router.tabSelectionBinding) {
+        TabView(selection: router.selectionBinding) {
             ForEach(Array(Router.Tab.allCases), id: \.self) { tab in
                 router.makeTabView(tab)
             }
