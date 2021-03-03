@@ -49,6 +49,25 @@ public struct RouterContentView<Router: AppRouting>: View {
     }
 }
 
+/// Presents the tab router in a TabView.
+public struct RouterTabView<Router: TabRouting>: View {
+
+    public init(with router: Router) {
+        self.router = router
+    }
+
+    @ObservedObject private var router: Router
+
+    public var body: some View {
+        TabView(selection: router.tabSelectionBinding) {
+            ForEach(Array(Router.Tab.allCases), id: \.self) { tab in
+                router.makeTabView(tab)
+            }
+        }
+        .environmentObject(router)
+    }
+}
+
 
 // MARK: - Internal Views
 
