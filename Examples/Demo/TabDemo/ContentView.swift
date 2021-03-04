@@ -41,7 +41,7 @@ final class TabRouter: TabRouting, ObservableObject {
 
     private var tabRouters: [ Tab : NavRouter ] = [:]
 
-    func getRouter(tab: Tab) -> NavRouter {
+    func getStackRouter(tab: Tab) -> NavRouter {
         tabRouters[tab] ?? NavRouter(state: 999)
     }
 
@@ -69,6 +69,10 @@ final class TabRouter: TabRouting, ObservableObject {
             }
         }
     }
+
+    func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior) {
+        print("Tab transition from:\(oldTab) to:\(newTab)")
+    }
 }
 
 extension TabRouter: TabBehaving {
@@ -79,9 +83,12 @@ extension TabRouter: TabBehaving {
 
 extension TabRouter {
 
+    /// Move to a specific tab at count.
+    ///
+    /// This shows that the tab router can perform compound tab/stack operations.
     func goToTabAtCount(_ tab: Tab, count: Int) {
         self.tab = tab
-        getRouter(tab: tab).state = count
+        getStackRouter(tab: tab).state = count
     }
 }
 
@@ -89,11 +96,11 @@ extension TabRouter {
 final class NavRouter: StackRouting {
 
     internal init(state: Int, parent: NavRouter? = nil) {
-        self.route = Route(state)
+        self.route = StackRoute(state)
         self.parent = parent
     }
 
-    @Published var route: Route<Int>
+    @Published var route: StackRoute<Int>
     var parent: NavRouter?
 
     func makeChildRouter(state: Int) -> NavRouter {
