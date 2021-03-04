@@ -6,13 +6,40 @@
 
 import SwiftUI
 
-public protocol AppRouting: ObservableObject {
+/// A stack router controls 'stack' navigation styles, such as NavigationView and Sheet.
+///
+/// This router is meant to be used for the majority of app navigation.
+public protocol StackRouting: ObservableObject {
+
+    /// A type that represents the current state.
     associatedtype State: Equatable
+
+    /// The type of View content that's created.
     associatedtype Content: View
-    associatedtype NestedRouter: AppRouting where NestedRouter == Self
-    var route: Route<State> { get set }
+
+    /// A self-referential type for parent/child router relationships.
+    associatedtype NestedRouter: StackRouting where NestedRouter == Self
+
+    /// The current route.
+    ///
+    /// This property must be marked @Published to trigger state changes.
+    ///
+    /// You shouldn't have to get or set this property directly, instead use
+    /// `state` and `transition`.
+    var route: StackRoute<State> { get set }
+
+    /// The parent router, if this router isn't the root of the stack.
     var parent: NestedRouter? { get }
+
+    /// Construct a new instance of this type, state.
+    ///
+    /// The returned instance should have its `parent` property set
+    /// to the current router.
     func makeChildRouter(state: State) -> NestedRouter
+
+    /// Turns a state into a view.
+    ///
+    /// This is how the router transforms state to SwiftUI views.
     func makeContentView(state: State) -> Content
 }
 
@@ -23,7 +50,7 @@ public protocol Presentable {
     var defaultPresentation: PresentationType { get }
 }
 
-public extension AppRouting {
+public extension StackRouting {
 
     /// Get the current router state.
     ///
@@ -46,7 +73,6 @@ public extension AppRouting {
         return output
     }
 
-
     /// Pop one level.
     func pop() {
         route.pop()
@@ -59,29 +85,30 @@ public extension AppRouting {
         // in the view, perhaps in SwiftUI.
         route.pop()
         rootRouter.route.pop()
-
     }
 }
 
-public struct Route<State> {
+/// The current stack state.
+public struct StackRoute<State> {
 
+    /// Initialize a route to state.
     public init(_ base: State) {
         self.base = base
     }
 
-    internal struct PushedState<State> {
+    internal struct PushedState {
         var state: State
         var presentation: PresentationType
     }
 
     internal let base: State
-    internal private(set) var pushed: PushedState<State>? = nil
+    internal private(set) var pushed: PushedState? = nil
 }
 
-extension Route: Equatable where State: Equatable {}
-extension Route.PushedState: Equatable where State: Equatable {}
+extension StackRoute: Equatable where State: Equatable {}
+extension StackRoute.PushedState: Equatable where State: Equatable {}
 
-internal extension Route {
+internal extension StackRoute {
 
     init(base: State, pushed: State, presentation: PresentationType) {
         self.base = base
@@ -101,7 +128,7 @@ internal extension Route {
     }
 }
 
-internal extension AppRouting {
+internal extension StackRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation.isLink ?? false },

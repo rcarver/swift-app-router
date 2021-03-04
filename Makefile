@@ -15,9 +15,6 @@ test:
 	xcodebuild \
 		-scheme TabDemo \
 		-destination platform="$(PLATFORM_IOS)"
-	xcodebuild \
-		-scheme TabLinkDemo \
-		-destination platform="$(PLATFORM_IOS)"
 
 format:
 	swift format --in-place --recursive \

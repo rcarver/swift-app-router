@@ -19,14 +19,14 @@ struct ContentView: View {
 }
 
 /// Router implementation
-final class Router: AppRouting {
+final class Router: StackRouting {
 
     init(state: Int, parent: Router? = nil) {
-        self.route = Route(state)
+        self.route = StackRoute(state)
         self.parent = parent
     }
 
-    @Published var route: Route<Int>
+    @Published var route: StackRoute<Int>
     let parent: Router?
 
     func makeChildRouter(state: Int) -> Router {

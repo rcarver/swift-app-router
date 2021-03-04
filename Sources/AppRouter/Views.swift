@@ -12,14 +12,14 @@ public extension View {
     /// Wrap the view to handle router state changes.
     ///
     /// You'll need to supply your own NavigationView if needed.
-    func routeSubviews<Router: AppRouting>(with router: Router) -> some View {
+    func routeSubviews<Router: StackRouting>(with router: Router) -> some View {
         PushedStateView(router: router, content: self)
     }
 }
 
 /// Presents the base state of the router wrapped in a NavigationView,
 /// passing the router to children through the environment.
-public struct RouterNavigationView<Router: AppRouting>: View {
+public struct RouterNavigationView<Router: StackRouting>: View {
 
     public init(with router: Router) {
         self.router = router
@@ -36,7 +36,7 @@ public struct RouterNavigationView<Router: AppRouting>: View {
 
 /// Presents the base state of the router, passing the router to children
 /// through the environment.
-public struct RouterContentView<Router: AppRouting>: View {
+public struct RouterContentView<Router: StackRouting>: View {
 
     public init(with router: Router) {
         self.router = router
@@ -49,12 +49,31 @@ public struct RouterContentView<Router: AppRouting>: View {
     }
 }
 
+/// Presents the tab router in a TabView.
+public struct RouterTabView<Router: TabRouting>: View {
+
+    public init(with router: Router) {
+        self.router = router
+    }
+
+    @ObservedObject private var router: Router
+
+    public var body: some View {
+        TabView(selection: router.selectionBinding) {
+            ForEach(Array(Router.Tab.allCases), id: \.self) { tab in
+                router.makeTabView(tab)
+            }
+        }
+        .environmentObject(router)
+    }
+}
+
 
 // MARK: - Internal Views
 
 /// Implements a fully routed view. The view's content is the router's
 /// base state and pushed states are presented as appropriate.
-struct FullyRoutedView<Router: AppRouting>: View {
+struct FullyRoutedView<Router: StackRouting>: View {
 
     @ObservedObject var router: Router
 
@@ -83,7 +102,7 @@ struct FullyRoutedView<Router: AppRouting>: View {
 }
 
 /// Implements presentation of pushed states, wrapping some content.
-struct PushedStateView<Router: AppRouting, Content: View>: View {
+struct PushedStateView<Router: StackRouting, Content: View>: View {
 
     @ObservedObject var router: Router
     var content: Content

@@ -9,16 +9,16 @@ import XCTest
 import SwiftUI
 @testable import AppRouter
 
-class AppRoutingTests: XCTestCase {
+class StackRoutingTests: XCTestCase {
 
-    final class TestRouter: AppRouting {
+    final class TestRouter: StackRouting {
 
         internal init(state: Int, parent: TestRouter? = nil) {
-            self.route = Route(state)
+            self.route = StackRoute(state)
             self.parent = parent
         }
 
-        var route: Route<Int>
+        var route: StackRoute<Int>
         var parent: TestRouter?
 
         func makeChildRouter(state: Int) -> TestRouter {
@@ -32,19 +32,19 @@ class AppRoutingTests: XCTestCase {
 
     func test_route_base() {
         let parent = TestRouter(state: 0)
-        XCTAssertEqual(parent.route, Route(0))
+        XCTAssertEqual(parent.route, StackRoute(0))
 
         parent.pop()
-        XCTAssertEqual(parent.route, Route(0), "no change")
+        XCTAssertEqual(parent.route, StackRoute(0), "no change")
     }
 
     func test_push_route_state() {
         let parent = TestRouter(state: 0)
         parent.state = 1
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
 
         parent.pop()
-        XCTAssertEqual(parent.route, Route(0), "parent drops push")
+        XCTAssertEqual(parent.route, StackRoute(0), "parent drops push")
     }
 
     func test_push_route_state_to_child() throws {
@@ -53,12 +53,12 @@ class AppRoutingTests: XCTestCase {
 
         let child = parent.makeChildRouter(state: try XCTUnwrap(parent.route.pushed?.state))
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
-        XCTAssertEqual(child.route, Route(1))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child.route, StackRoute(1))
 
         child.pop()
-        XCTAssertEqual(parent.route, Route(0), "parent drops push")
-        XCTAssertEqual(child.route, Route(1))
+        XCTAssertEqual(parent.route, StackRoute(0), "parent drops push")
+        XCTAssertEqual(child.route, StackRoute(1))
     }
 
     func test_push_route_state_to_children() throws {
@@ -74,16 +74,16 @@ class AppRoutingTests: XCTestCase {
         let child3 = child2.makeChildRouter(state: try XCTUnwrap(child2.route.pushed?.state))
         child3.state = 4 // orphan pushed state
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
-        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
-        XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link))
-        XCTAssertEqual(child3.route, Route(base: 3, pushed: 4, presentation: .link))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child1.route, StackRoute(base: 1, pushed: 2, presentation: .link))
+        XCTAssertEqual(child2.route, StackRoute(base: 2, pushed: 3, presentation: .link))
+        XCTAssertEqual(child3.route, StackRoute(base: 3, pushed: 4, presentation: .link))
 
         child3.pop()
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
-        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
-        XCTAssertEqual(child2.route, Route(2), "parent push is dropped")
-        XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child1.route, StackRoute(base: 1, pushed: 2, presentation: .link))
+        XCTAssertEqual(child2.route, StackRoute(2), "parent push is dropped")
+        XCTAssertEqual(child3.route, StackRoute(3), "orphaned push is dropped")
     }
 
     func test_popToRoot() throws {
@@ -99,16 +99,16 @@ class AppRoutingTests: XCTestCase {
         let child3 = child2.makeChildRouter(state: try XCTUnwrap(child2.route.pushed?.state))
         child3.state = 4 // orphan pushed state
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .link))
-        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link))
-        XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link))
-        XCTAssertEqual(child3.route, Route(base: 3, pushed: 4, presentation: .link))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
+        XCTAssertEqual(child1.route, StackRoute(base: 1, pushed: 2, presentation: .link))
+        XCTAssertEqual(child2.route, StackRoute(base: 2, pushed: 3, presentation: .link))
+        XCTAssertEqual(child3.route, StackRoute(base: 3, pushed: 4, presentation: .link))
 
         child3.popToRoot()
-        XCTAssertEqual(parent.route, Route(0), "parent drops push")
-        XCTAssertEqual(child1.route, Route(base: 1, pushed: 2, presentation: .link), "intermediate children are unaffected")
-        XCTAssertEqual(child2.route, Route(base: 2, pushed: 3, presentation: .link), "intermediate children are unaffected")
-        XCTAssertEqual(child3.route, Route(3), "orphaned push is dropped")
+        XCTAssertEqual(parent.route, StackRoute(0), "parent drops push")
+        XCTAssertEqual(child1.route, StackRoute(base: 1, pushed: 2, presentation: .link), "intermediate children are unaffected")
+        XCTAssertEqual(child2.route, StackRoute(base: 2, pushed: 3, presentation: .link), "intermediate children are unaffected")
+        XCTAssertEqual(child3.route, StackRoute(3), "orphaned push is dropped")
     }
 
     func test_transition() {
@@ -116,7 +116,7 @@ class AppRoutingTests: XCTestCase {
 
         parent.transition(1, via: .sheet)
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 1, presentation: .sheet))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .sheet))
     }
 
     func test_transition_closure() {
@@ -126,7 +126,7 @@ class AppRoutingTests: XCTestCase {
             state += 2
         }
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 2, presentation: .sheet))
     }
 
     func test_transition_closure_return() {
@@ -138,7 +138,7 @@ class AppRoutingTests: XCTestCase {
         }
 
         XCTAssertEqual(result, "OK")
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 2, presentation: .sheet))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 2, presentation: .sheet))
     }
 
     func test_transition_closure_throws() {
@@ -156,20 +156,20 @@ class AppRoutingTests: XCTestCase {
             XCTAssertEqual(error as? Err, Err())
         }
 
-        XCTAssertEqual(parent.route, Route(0))
+        XCTAssertEqual(parent.route, StackRoute(0))
     }
 }
 
 class PresentableTests: XCTestCase {
 
-    final class PresentableRouter: AppRouting, Presentable {
+    final class PresentableRouter: StackRouting, Presentable {
 
         internal init(state: Int, parent: PresentableRouter? = nil) {
-            self.route = Route(state)
+            self.route = StackRoute(state)
             self.parent = parent
         }
 
-        var route: Route<Int>
+        var route: StackRoute<Int>
         var parent: PresentableRouter?
 
         var defaultPresentation: PresentationType { .sheet }
@@ -188,6 +188,6 @@ class PresentableTests: XCTestCase {
 
         parent.state = 3
 
-        XCTAssertEqual(parent.route, Route(base: 0, pushed: 3, presentation: .sheet))
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 3, presentation: .sheet))
     }
 }

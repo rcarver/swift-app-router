@@ -11,100 +11,126 @@ import AppRouter
 /// The root SwiftUI View
 struct ContentView: View {
 
-    @StateObject var router = Router(tab: .home)
+    @StateObject var router = TabRouter()
 
     var body: some View {
-        TabView(selection: $router.state) {
-            HomeTabView()
-                .tabItem { Text("Home") }
-                .tag(Tab.home)
-
-            ExploreTabView()
-                .tabItem { Text("Explore") }
-                .tag(Tab.explore)
-
-            ProfileTabView()
-                .tabItem { Text("Profile") }
-                .tag(Tab.profile)
-        }
-        .environmentObject(router)
+        RouterTabView(with: router)
     }
 }
 
-/// The State type
-enum Tab: Hashable {
+/// The Tab type
+enum Tab: String, Hashable, CaseIterable {
     case home
     case explore
     case profile
 }
 
-/// Router implementation
-final class Router: AppRouting {
+/// Tab Router implementation
+final class TabRouter: TabRouting, ObservableObject {
 
-    internal init(tab: Tab, parent: Router? = nil) {
-        self.route = Route(tab)
+    init() {
+        tabRouters = [
+            .home: NavRouter(state: 1),
+            .explore: NavRouter(state: 2),
+            .profile: NavRouter(state: 3)
+        ]
+        route = TabRoute(.explore)
+    }
+
+    @Published var route: TabRoute<Tab>
+
+    private var tabRouters: [ Tab : NavRouter ] = [:]
+
+    func getStackRouter(tab: Tab) -> NavRouter {
+        tabRouters[tab] ?? NavRouter(state: 999)
+    }
+
+    func makeContentView(tab: Tab, router: NavRouter) -> some View {
+        RouterNavigationView(with: router)
+    }
+
+    @ViewBuilder
+    func makeTabItemView(tab: Tab) -> some View {
+        switch tab {
+        case .home:
+            VStack {
+                Image(systemName: "house")
+                Text("Home")
+            }
+        case .explore:
+            VStack {
+                Image(systemName: "flashlight.on.fill")
+                Text("Explore")
+            }
+        case .profile:
+            VStack {
+                Image(systemName: "person")
+                Text("Profile")
+            }
+        }
+    }
+
+    func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior) {
+        print("Tab transition from:\(oldTab) to:\(newTab)")
+    }
+}
+
+extension TabRouter: TabBehaving {
+    var defaultBehavior: TabBehavior {
+        .popToRootIfRepeated
+    }
+}
+
+extension TabRouter {
+
+    /// Move to a specific tab at count.
+    ///
+    /// This shows that the tab router can perform compound tab/stack operations.
+    func goToTabAtCount(_ tab: Tab, count: Int) {
+        self.tab = tab
+        getStackRouter(tab: tab).state = count
+    }
+}
+
+/// Stack Router implementation
+final class NavRouter: StackRouting {
+
+    internal init(state: Int, parent: NavRouter? = nil) {
+        self.route = StackRoute(state)
         self.parent = parent
     }
 
-    @Published var route: Route<Tab>
-    var parent: Router?
+    @Published var route: StackRoute<Int>
+    var parent: NavRouter?
 
-    func makeChildRouter(state: Tab) -> Router {
-        Router(tab: state, parent: self)
+    func makeChildRouter(state: Int) -> NavRouter {
+        NavRouter(state: state, parent: self)
     }
 
-    func makeContentView(state: Tab) -> some View {
-        Text("Not Used")
-    }
-}
-
-/// Custom route state transitions.
-extension Router {
-
-    /// Switch to a different tab
-    func switchTo(tab: Tab) {
-        state = tab
+    func makeContentView(state: Int) -> some View {
+        CountView(count: state)
     }
 }
 
-// MARK: - Tab views
 
-struct HomeTabView: View {
-    @EnvironmentObject var router: Router
+// MARK: - Content views
+
+struct CountView: View {
+    var count: Int
+    @EnvironmentObject var tabRouter: TabRouter
+    @EnvironmentObject var navRouter: NavRouter
     var body: some View {
         VStack(spacing: 10) {
-            Text("Home View")
-            Button(action: { router.switchTo(tab: .explore) }) {
-                Text("Go to Explore")
+            Text("Count is \(count)")
+            Text("Tab is \(tabRouter.tab.rawValue)")
+            Button(action: { navRouter.state += 1 }) {
+                Text("Plus One")
             }
-            Button(action: { router.switchTo(tab: .profile) }) {
-                Text("Go to Profile")
-            }
-        }
-    }
-}
-
-struct ExploreTabView: View {
-    @EnvironmentObject var router: Router
-    var body: some View {
-        VStack(spacing: 10) {
-            Text("Explore View")
-            Button(action: { router.switchTo(tab: .home) }) {
-                Text("Go to Home")
+            Button(action: { tabRouter.goToTabAtCount(.home, count: 5) }) {
+                Text("Home at 5")
             }
         }
-    }
-}
-
-struct ProfileTabView: View {
-    @EnvironmentObject var router: Router
-    var body: some View {
-        VStack(spacing: 10) {
-            Text("Profile View")
-            Button(action: { router.switchTo(tab: .home) }) {
-                Text("Go to Home")
-            }
-        }
+        .navigationTitle("Count is \(count)")
     }
 }
 
