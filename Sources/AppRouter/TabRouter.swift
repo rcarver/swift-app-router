@@ -115,7 +115,7 @@ public extension TabRouting {
 public struct TabRoute<Tab> {
 
     /// Initialize a route to tab.
-    public init(tab: Tab) {
+    public init(_ tab: Tab) {
         self.tab = tab
         self.behavior = .keepState
     }

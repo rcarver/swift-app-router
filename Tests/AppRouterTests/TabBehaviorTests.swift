@@ -46,7 +46,7 @@ class TabBehaviorTests: XCTestCase {
         init() {
             firstRouter = TestStackRouter(state: 1)
             secondRouter = TestStackRouter(state: 2)
-            route = TabRoute(tab: .first)
+            route = TabRoute(.first)
         }
 
         var firstRouter: TestStackRouter

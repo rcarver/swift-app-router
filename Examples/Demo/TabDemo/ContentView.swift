@@ -34,7 +34,7 @@ final class TabRouter: TabRouting, ObservableObject {
             .explore: NavRouter(state: 2),
             .profile: NavRouter(state: 3)
         ]
-        route = TabRoute(tab: .explore)
+        route = TabRoute(.explore)
     }
 
     @Published var route: TabRoute<Tab>
