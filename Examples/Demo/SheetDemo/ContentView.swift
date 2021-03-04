@@ -31,11 +31,11 @@ struct Screen: Equatable, CustomDebugStringConvertible {
 final class Router: StackRouting {
 
     init(state: Screen, parent: Router? = nil) {
-        self.route = Route(state)
+        self.route = StackRoute(state)
         self.parent = parent
     }
 
-    @Published var route: Route<Screen>
+    @Published var route: StackRoute<Screen>
     let parent: Router?
 
     func makeChildRouter(state: Screen) -> Router {
