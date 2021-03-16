@@ -21,7 +21,7 @@ public protocol StackRouting: ObservableObject {
     associatedtype NestedRouter: StackRouting where NestedRouter == Self
 
     /// A function that receives (oldState, newState) whenever the state changes.
-    typealias Transition = (State, State) -> Void
+    typealias Transition = (_ oldState: Self.State, _ newState: Self.State) -> Void
 
     /// The current route.
     ///
@@ -34,13 +34,13 @@ public protocol StackRouting: ObservableObject {
     /// The parent router, if this router isn't the root of the stack.
     var parent: NestedRouter? { get }
 
-    /// Receive events when the state transitions. Optional.
+    /// Handle events when the state changes. Optional.
     ///
     /// This is where you should handle any side effects of state transitions,
     /// because it will properly trigger on both forward (push) and backward
     /// (pop) transitions.
     /// 
-    /// Make sure to pass the handler along to child routers if needed.
+    /// Make sure to pass the handler to child routers if appropriate.
     var transition: Transition { get }
 
     /// Construct a new instance of this type, state.

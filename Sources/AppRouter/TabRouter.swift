@@ -26,7 +26,7 @@ public protocol TabRouting: ObservableObject {
     associatedtype TabBarContent: View
 
     /// A function that receives (oldTab, newTab, behavior) whenever the tab changes.
-    typealias Transition = (Tab, Tab, TabBehavior) -> Void
+    typealias Transition = (_ oldTab: Tab, _ newTab: Tab, _ behavior: TabBehavior) -> Void
 
     /// The current route.
     ///
@@ -61,6 +61,12 @@ public protocol TabRouting: ObservableObject {
     /// It's common to want to perform some action when changing to a tab,
     /// generally by using the tab's router via `getStackRouter(tab: newTab)`.
     var transition: Transition { get }
+}
+
+public extension TabRouting {
+
+    /// Default transition handler does nothing.
+    var transition: Transition { { _, _, _ in } }
 }
 
 /// Adopt this protocol to change how tab transitions behave by default.
@@ -112,12 +118,6 @@ public extension TabRouting {
         Binding(get: { self.tab },
                 set: { self.tab = $0 })
     }
-}
-
-public extension TabRouting {
-
-    /// Default transition handler does nothing.
-    var transition: Transition { { _, _, _ in } }
 }
 
 /// The current tab state.
