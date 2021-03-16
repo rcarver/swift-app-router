@@ -25,6 +25,9 @@ public protocol TabRouting: ObservableObject {
     /// The type of View content that's created for a tab item.
     associatedtype TabBarContent: View
 
+    /// A function that receives (oldTab, newTab, behavior) whenever the tab changes.
+    typealias Transition = (Tab, Tab, TabBehavior) -> Void
+
     /// The current route.
     ///
     /// This property must be marked @Published to trigger state changes.
@@ -57,7 +60,7 @@ public protocol TabRouting: ObservableObject {
     ///
     /// It's common to want to perform some action when changing to a tab,
     /// generally by using the tab's router via `getStackRouter(tab: newTab)`.
-    func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior)
+    var transition: Transition { get }
 }
 
 /// Adopt this protocol to change how tab transitions behave by default.
@@ -84,21 +87,21 @@ public extension TabRouting {
         switch behavior {
         case .keepState:
             if current != tab {
-                tabDidTransition(from: current, to: tab, with: .keepState)
+                transition(current, tab, .keepState)
             }
 
         case .popToRoot:
             if current != tab {
                 getStackRouter(tab: tab).popToRoot()
-                tabDidTransition(from: current, to: tab, with: .popToRoot)
+                transition(current, tab, .popToRoot)
             }
 
         case .popToRootIfRepeated:
             if current == tab {
                 getStackRouter(tab: tab).popToRoot()
-                tabDidTransition(from: current, to: tab, with: .popToRoot)
+                transition(current, tab, .popToRoot)
             } else {
-                tabDidTransition(from: current, to: tab, with: .keepState)
+                transition(current, tab, .keepState)
             }
         }
     }
@@ -109,6 +112,12 @@ public extension TabRouting {
         Binding(get: { self.tab },
                 set: { self.tab = $0 })
     }
+}
+
+public extension TabRouting {
+
+    /// Default transition handler does nothing.
+    var transition: Transition { { _, _, _ in } }
 }
 
 /// The current tab state.

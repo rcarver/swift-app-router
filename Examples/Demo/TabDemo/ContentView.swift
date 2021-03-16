@@ -39,6 +39,8 @@ final class TabRouter: TabRouting, ObservableObject {
 
     @Published var route: TabRoute<Tab>
 
+    var transition: Transition { tabDidTransition }
+
     private var tabRouters: [ Tab : NavRouter ] = [:]
 
     func getStackRouter(tab: Tab) -> NavRouter {
@@ -69,10 +71,14 @@ final class TabRouter: TabRouting, ObservableObject {
             }
         }
     }
+}
 
-    func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior) {
-        print("Tab transition from:\(oldTab) to:\(newTab)")
-    }
+func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior) {
+    print("Tab transition from:\(oldTab) to:\(newTab) (\(behavior))")
+}
+
+func stackDidTransition(from oldState: Int, to newState: Int) {
+    print("Stack transition from:\(oldState) to:\(newState)")
 }
 
 extension TabRouter: TabBehaving {
@@ -101,6 +107,9 @@ final class NavRouter: StackRouting {
     }
 
     @Published var route: StackRoute<Int>
+
+    var transition: (Int, Int) -> Void { stackDidTransition }
+
     var parent: NavRouter?
 
     func makeChildRouter(state: Int) -> NavRouter {

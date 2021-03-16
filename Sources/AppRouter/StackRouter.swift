@@ -20,6 +20,9 @@ public protocol StackRouting: ObservableObject {
     /// A self-referential type for parent/child router relationships.
     associatedtype NestedRouter: StackRouting where NestedRouter == Self
 
+    /// A function that receives (oldState, newState) whenever the state changes.
+    typealias Transition = (State, State) -> Void
+
     /// The current route.
     ///
     /// This property must be marked @Published to trigger state changes.
@@ -31,6 +34,15 @@ public protocol StackRouting: ObservableObject {
     /// The parent router, if this router isn't the root of the stack.
     var parent: NestedRouter? { get }
 
+    /// Receive events when the state transitions. Optional.
+    ///
+    /// This is where you should handle any side effects of state transitions,
+    /// because it will properly trigger on both forward (push) and backward
+    /// (pop) transitions.
+    /// 
+    /// Make sure to pass the handler along to child routers if needed.
+    var transition: Transition { get }
+
     /// Construct a new instance of this type, state.
     ///
     /// The returned instance should have its `parent` property set
@@ -41,6 +53,12 @@ public protocol StackRouting: ObservableObject {
     ///
     /// This is how the router transforms state to SwiftUI views.
     func makeContentView(state: State) -> Content
+}
+
+public extension StackRouting {
+
+    /// Default transition handler does nothing.
+    var transition: Transition { { _, _ in } }
 }
 
 /// Adopt this protocol to change how state transitions are presented by default.
@@ -62,29 +80,48 @@ public extension StackRouting {
 
     /// Transition to state with presentation.
     func transition(_ state: State, via presentation: PresentationType) {
+        let oldState = self.state
         presentation.route(self, to: state)
+        let newState = self.state
+        if oldState != newState {
+            transition(oldState, newState)
+        }
     }
 
     /// Transition via presentation, modifying state with closure.
     func transition<Out>(_ presentation: PresentationType, modify: (inout State) throws -> Out) rethrows -> Out {
+        let oldState = state
         var newState = state
         let output = try modify(&newState)
         presentation.route(self, to: newState)
+        if oldState != newState {
+            transition(oldState, newState)
+        }
         return output
     }
 
     /// Pop one level.
     func pop() {
+        let oldState = self.state
         route.pop()
         parent?.route.pop()
+        let newState = parent?.state ?? self.state
+        if oldState != newState {
+            transition(oldState, newState)
+        }
     }
 
     /// Pop to root immediately, skipping each intermediate child.
     func popToRoot() {
         // FIXME: sheets pop the the first child. It seems like a problem
         // in the view, perhaps in SwiftUI.
+        let oldState = self.state
         route.pop()
         rootRouter.route.pop()
+        let newState = rootRouter.state
+        if oldState != newState {
+            transition(oldState, newState)
+        }
     }
 }
 
