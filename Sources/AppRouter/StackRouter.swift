@@ -169,12 +169,23 @@ internal extension StackRouting {
 
     var isLinkActiveBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation.isLink ?? false },
-                set: { if !$0 { self.route.pop() } })
+                set: { if !$0 { self.popViaBinding() } })
     }
 
     var isSheetPresentedBinding: Binding<Bool> {
         Binding(get: { self.route.pushed?.presentation.isSheet ?? false },
-                set: { if !$0 { self.route.pop() } })
+                set: { if !$0 { self.popViaBinding() } })
+    }
+
+    /// When called from a views binding, we're in the *parent* router,
+    /// so calling parent.pop() causes recursion.
+    func popViaBinding() {
+        let oldState = self.state
+        route.pop()
+        let newState = self.state
+        if oldState != newState {
+            transition(oldState, newState)
+        }
     }
 
     var objectAddress: String {

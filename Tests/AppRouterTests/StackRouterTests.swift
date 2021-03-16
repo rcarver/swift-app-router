@@ -230,6 +230,44 @@ class StackRoutingTests: XCTestCase {
 
         XCTAssertEqual(transitions, [])
     }
+
+    func test_link_binding() {
+        let parent = TestRouter(state: 0, transition: transitionHandler)
+
+        parent.transition(1, via: .link)
+
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
+        XCTAssertTrue(parent.isLinkActiveBinding.wrappedValue)
+
+        parent.isLinkActiveBinding.wrappedValue = false
+        XCTAssertFalse(parent.isLinkActiveBinding.wrappedValue)
+
+        XCTAssertEqual(parent.route, StackRoute(0))
+
+        XCTAssertEqual(transitions, [
+            StackTransition(0, 1),
+            StackTransition(1, 0)
+        ])
+    }
+
+    func test_sheet_binding() {
+        let parent = TestRouter(state: 0, transition: transitionHandler)
+
+        parent.transition(1, via: .sheet)
+
+        XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .sheet))
+        XCTAssertTrue(parent.isSheetPresentedBinding.wrappedValue)
+
+        parent.isSheetPresentedBinding.wrappedValue = false
+        XCTAssertFalse(parent.isSheetPresentedBinding.wrappedValue)
+
+        XCTAssertEqual(parent.route, StackRoute(0))
+
+        XCTAssertEqual(transitions, [
+            StackTransition(0, 1),
+            StackTransition(1, 0)
+        ])
+    }
 }
 
 class PresentableTests: XCTestCase {
