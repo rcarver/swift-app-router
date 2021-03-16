@@ -29,6 +29,8 @@ final class Router: StackRouting {
     @Published var route: StackRoute<Int>
     let parent: Router?
 
+    var transition: (Int, Int) -> Void { stackDidTransition }
+
     func makeChildRouter(state: Int) -> Router {
         Router(state: state, parent: self)
     }
@@ -52,6 +54,10 @@ extension Router {
             state -= 1
         }
     }
+}
+
+func stackDidTransition(from oldState: Int, to newState: Int) {
+    print("Stack transition from:\(oldState) to:\(newState)")
 }
 
 class CounterViewModel: ObservableObject {

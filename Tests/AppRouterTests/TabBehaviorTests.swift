@@ -35,18 +35,13 @@ class TabBehaviorTests: XCTestCase {
         case second
     }
 
-    struct Transition: Equatable {
-        var oldTab: Tab
-        var newTab: Tab
-        var behavior: TabBehavior
-    }
-
     final class TestTabRouter: TabRouting {
 
-        init() {
+        init(transition: @escaping Transition) {
             firstRouter = TestStackRouter(state: 1)
             secondRouter = TestStackRouter(state: 2)
             route = TabRoute(.first)
+            self.transition = transition
         }
 
         var firstRouter: TestStackRouter
@@ -69,10 +64,27 @@ class TabBehaviorTests: XCTestCase {
             Text(tab.rawValue)
         }
 
-        var transitions: [Transition] = []
+        var transition: (Tab, Tab, TabBehavior) -> Void
+    }
 
-        func tabDidTransition(from oldTab: Tab, to newTab: Tab, with behavior: TabBehavior) {
-            transitions.append(Transition(oldTab: oldTab, newTab: newTab, behavior: behavior))
+    struct TabTransition: Equatable {
+        init(_ oldTab: Tab, _ newTab: Tab, _ behavior: TabBehavior) {
+            self.oldTab = oldTab
+            self.newTab = newTab
+            self.behavior = behavior
+        }
+        var oldTab: Tab
+        var newTab: Tab
+        var behavior: TabBehavior
+    }
+
+    var transitions: [TabTransition]!
+    var transitionHandler: TestTabRouter.Transition!
+
+    override func setUp() {
+        transitions = []
+        transitionHandler = { oldTab, newTab, behavior in
+            self.transitions.append(TabTransition(oldTab, newTab, behavior))
         }
     }
 }
@@ -80,68 +92,68 @@ class TabBehaviorTests: XCTestCase {
 extension TabBehaviorTests {
 
     func test_transition_keepState() {
-        let router = TestTabRouter()
+        let router = TestTabRouter(transition: transitionHandler)
         router.secondRouter.state = 5
 
         router.transition(.second, with: .keepState)
 
         XCTAssertEqual(router.tab, .second)
         XCTAssertEqual(router.secondRouter.state, 5)
-        XCTAssertEqual(router.transitions, [
-            Transition(oldTab: .first, newTab: .second, behavior: .keepState)
+        XCTAssertEqual(transitions, [
+            TabTransition(.first, .second, .keepState)
         ])
     }
 
     func test_transition_keepState_no_change() {
-        let router = TestTabRouter()
+        let router = TestTabRouter(transition: transitionHandler)
 
         router.transition(.first, with: .keepState)
 
         XCTAssertEqual(router.tab, .first)
-        XCTAssertEqual(router.transitions, [])
+        XCTAssertEqual(transitions, [])
     }
 
     func test_transition_popToRoot() {
-        let router = TestTabRouter()
+        let router = TestTabRouter(transition: transitionHandler)
         router.secondRouter.state = 5
 
         router.transition(.second, with: .popToRoot)
 
         XCTAssertEqual(router.tab, .second)
         XCTAssertEqual(router.secondRouter.state, 2)
-        XCTAssertEqual(router.transitions, [
-            Transition(oldTab: .first, newTab: .second, behavior: .popToRoot)
+        XCTAssertEqual(transitions, [
+            TabTransition(.first, .second, .popToRoot)
         ])
     }
 
     func test_transition_popToRoot_no_change() {
-        let router = TestTabRouter()
+        let router = TestTabRouter(transition: transitionHandler)
 
         router.transition(.first, with: .popToRoot)
 
         XCTAssertEqual(router.tab, .first)
-        XCTAssertEqual(router.transitions, [])
+        XCTAssertEqual(transitions, [])
     }
 
     func test_transition_popToRootIfRepeated() {
-        let router = TestTabRouter()
+        let router = TestTabRouter(transition: transitionHandler)
         router.secondRouter.state = 5
 
         router.transition(.second, with: .popToRootIfRepeated)
 
         XCTAssertEqual(router.tab, .second)
         XCTAssertEqual(router.secondRouter.state, 5)
-        XCTAssertEqual(router.transitions, [
-            Transition(oldTab: .first, newTab: .second, behavior: .keepState)
+        XCTAssertEqual(transitions, [
+            TabTransition(.first, .second, .keepState)
         ])
 
         router.transition(.second, with: .popToRootIfRepeated)
 
         XCTAssertEqual(router.tab, .second)
         XCTAssertEqual(router.secondRouter.state, 2)
-        XCTAssertEqual(router.transitions, [
-            Transition(oldTab: .first, newTab: .second, behavior: .keepState),
-            Transition(oldTab: .second, newTab: .second, behavior: .popToRoot)
+        XCTAssertEqual(transitions, [
+            TabTransition(.first, .second, .keepState),
+            TabTransition(.second, .second, .popToRoot)
         ])
     }
 }
