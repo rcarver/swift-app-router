@@ -242,3 +242,13 @@ fileprivate extension PresentationType {
         }
     }
 }
+
+extension StackTransitionType: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .push: return "push"
+        case .pop(let toRoot): return toRoot ? "pop" : "popToRoot"
+        }
+    }
+}
+

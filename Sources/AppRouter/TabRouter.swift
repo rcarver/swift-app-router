@@ -162,3 +162,12 @@ internal extension TabRouting {
             .tag(tab)
     }
 }
+
+extension TabTransitionType: CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .keepState: return "keepState"
+        case .popToRoot: return "popToRoot"
+        }
+    }
+}
