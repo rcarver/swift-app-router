@@ -21,7 +21,7 @@ public protocol StackRouting: ObservableObject {
     associatedtype NestedRouter: StackRouting where NestedRouter == Self
 
     /// A function that receives (oldState, newState) whenever the state changes.
-    typealias Transition = (_ oldState: Self.State, _ newState: Self.State) -> Void
+    typealias Transition = (_ oldState: Self.State, _ newState: Self.State, _ transition: StackTransitionType) -> Void
 
     /// The current route.
     ///
@@ -55,10 +55,23 @@ public protocol StackRouting: ObservableObject {
     func makeContentView(state: State) -> Content
 }
 
+/// When a transition occurs, these are the types of transition.
+public enum StackTransitionType: Equatable {
+
+    /// A forward-moving transition.
+    case push
+
+    /// A backward-moving transition.
+    case pop(toRoot: Bool)
+
+    static var pop: Self { .pop(toRoot: false) }
+    static var popToRoot: Self { .pop(toRoot: true) }
+}
+
 public extension StackRouting {
 
     /// Default transition handler does nothing.
-    var transition: Transition { { _, _ in } }
+    var transition: Transition { { _, _, _ in } }
 }
 
 /// Adopt this protocol to change how state transitions are presented by default.
@@ -84,7 +97,7 @@ public extension StackRouting {
         presentation.route(self, to: state)
         let newState = self.state
         if oldState != newState {
-            transition(oldState, newState)
+            transition(oldState, newState, .push)
         }
     }
 
@@ -95,7 +108,7 @@ public extension StackRouting {
         let output = try modify(&newState)
         presentation.route(self, to: newState)
         if oldState != newState {
-            transition(oldState, newState)
+            transition(oldState, newState, .push)
         }
         return output
     }
@@ -107,7 +120,7 @@ public extension StackRouting {
         parent?.route.pop()
         let newState = parent?.state ?? self.state
         if oldState != newState {
-            transition(oldState, newState)
+            transition(oldState, newState, .pop)
         }
     }
 
@@ -120,7 +133,7 @@ public extension StackRouting {
         rootRouter.route.pop()
         let newState = rootRouter.state
         if oldState != newState {
-            transition(oldState, newState)
+            transition(oldState, newState, .popToRoot)
         }
     }
 }
@@ -184,7 +197,7 @@ internal extension StackRouting {
         route.pop()
         let newState = self.state
         if oldState != newState {
-            transition(oldState, newState)
+            transition(oldState, newState, .pop)
         }
     }
 

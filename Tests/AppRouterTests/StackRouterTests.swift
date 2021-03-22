@@ -12,13 +12,15 @@ import SwiftUI
 class StackRoutingTests: XCTestCase {
 
     struct StackTransition: Equatable, CustomStringConvertible {
-        init(_ oldState: Int, _ newState: Int) {
+        init(_ oldState: Int, _ newState: Int, _ transition: StackTransitionType) {
             self.oldState = oldState
             self.newState = newState
+            self.transition = transition
         }
         var oldState: Int
         var newState: Int
-        var description: String { "\(oldState):\(newState)" }
+        var transition: StackTransitionType
+        var description: String { "\(transition):\(oldState):\(newState)" }
     }
 
     final class TestRouter: StackRouting {
@@ -33,7 +35,7 @@ class StackRoutingTests: XCTestCase {
 
         // Note: the type should be `Transition`, but it fails to compile:
         // Reference to invalid type alias 'Transition' of type 'StackRoutingTests.TestRouter'
-        var transition: (Int, Int) -> Void
+        var transition: (Int, Int, StackTransitionType) -> Void
 
         var parent: TestRouter?
 
@@ -52,7 +54,7 @@ class StackRoutingTests: XCTestCase {
     override func setUp() {
         transitions = []
         transitionHandler = {
-            self.transitions.append(StackTransition($0, $1))
+            self.transitions.append(StackTransition($0, $1, $2))
         }
     }
 
@@ -72,15 +74,15 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .link))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1)
+            StackTransition(0, 1, .push)
         ])
 
         parent.pop()
         XCTAssertEqual(parent.route, StackRoute(0), "parent drops push")
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 0)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 0, .pop)
         ])
     }
 
@@ -98,8 +100,8 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(child.route, StackRoute(1))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 0)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 0, .pop)
         ])
     }
 
@@ -128,11 +130,11 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(child3.route, StackRoute(3), "orphaned push is dropped")
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 2),
-            StackTransition(2, 3),
-            StackTransition(3, 4),
-            StackTransition(4, 2)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 2, .push),
+            StackTransition(2, 3, .push),
+            StackTransition(3, 4, .push),
+            StackTransition(4, 2, .pop)
         ])
     }
 
@@ -161,11 +163,11 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(child3.route, StackRoute(3), "orphaned push is dropped")
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 2),
-            StackTransition(2, 3),
-            StackTransition(3, 4),
-            StackTransition(4, 0)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 2, .push),
+            StackTransition(2, 3, .push),
+            StackTransition(3, 4, .push),
+            StackTransition(4, 0, .popToRoot)
         ])
     }
 
@@ -177,7 +179,7 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 1, presentation: .sheet))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1)
+            StackTransition(0, 1, .push)
         ])
     }
 
@@ -191,7 +193,7 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 2, presentation: .sheet))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 2)
+            StackTransition(0, 2, .push)
         ])
     }
 
@@ -207,7 +209,7 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(base: 0, pushed: 2, presentation: .sheet))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 2)
+            StackTransition(0, 2, .push)
         ])
     }
 
@@ -245,8 +247,8 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(0))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 0)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 0, .pop)
         ])
     }
 
@@ -264,8 +266,8 @@ class StackRoutingTests: XCTestCase {
         XCTAssertEqual(parent.route, StackRoute(0))
 
         XCTAssertEqual(transitions, [
-            StackTransition(0, 1),
-            StackTransition(1, 0)
+            StackTransition(0, 1, .push),
+            StackTransition(1, 0, .pop)
         ])
     }
 }
