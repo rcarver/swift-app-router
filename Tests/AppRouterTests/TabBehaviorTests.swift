@@ -64,18 +64,18 @@ class TabBehaviorTests: XCTestCase {
             Text(tab.rawValue)
         }
 
-        var transition: (Tab, Tab, TabBehavior) -> Void
+        var transition: (Tab, Tab, TabTransitionType) -> Void
     }
 
     struct TabTransition: Equatable {
-        init(_ oldTab: Tab, _ newTab: Tab, _ behavior: TabBehavior) {
+        init(_ oldTab: Tab, _ newTab: Tab, _ transition: TabTransitionType) {
             self.oldTab = oldTab
             self.newTab = newTab
-            self.behavior = behavior
+            self.transition = transition
         }
         var oldTab: Tab
         var newTab: Tab
-        var behavior: TabBehavior
+        var transition: TabTransitionType
     }
 
     var transitions: [TabTransition]!
@@ -83,8 +83,8 @@ class TabBehaviorTests: XCTestCase {
 
     override func setUp() {
         transitions = []
-        transitionHandler = { oldTab, newTab, behavior in
-            self.transitions.append(TabTransition(oldTab, newTab, behavior))
+        transitionHandler = { oldTab, newTab, transition in
+            self.transitions.append(TabTransition(oldTab, newTab, transition))
         }
     }
 }
